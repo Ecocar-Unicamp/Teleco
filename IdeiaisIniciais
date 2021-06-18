@@ -1,15 +1,15 @@
 Classes:
-- Gráfico
-- Botão
-- Barra
-- Guia
-- Checkbox
-- Valores
+- Gráfico -> Daniel
+- Botão(valor da porta COM) -> Soares
+- Barra -> Soares
+- Guia -> Nuno
+- Checkbox -> Nuno
+- Valores(acesso a porta COM) -> Daniel
 
 Variaveis:
--Tamanho da janela
--Cores
--Textos
+- Tamanho da janela -> Daniel
+- Cores(Implementar quando necessário)
+- Textos -> Nuno
 
 Funções:
--Salvar
+- Salvar -> Nuno
