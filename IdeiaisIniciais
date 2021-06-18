@@ -1,2 +1,14 @@
-a
-no easter eggs here
+Classes:
+- Gráfico
+- Botão
+- Barra
+- Guia
+- Checkbox
+
+Variaveis:
+-Tamanho da janela
+-Cores
+-Textos
+
+Funções:
+-Salvar
