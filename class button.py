@@ -1,3 +1,9 @@
+def cursor_is_over(x, y, width, height, cursor_position):  # Determines if the mouse cursor position in tuple (x,y) is over
+    if cursor_position[0] > x and cursor_position[0] < x + width:
+        if cursor_position[1] > y and cursor_position[1] < y + height:
+            return True
+    return False
+
 font = pygame.font.Font('freesansbold.ttf', 16)
 
 class button():
@@ -20,8 +26,5 @@ class button():
             text = font.render(self.text, True, (0, 0, 0))
             (self.screen).blit(text, (self.x + (self.width/2 - text.get_width()/2), self.y + (self.height/2 - text.get_height()/2)))
 
-    def cursor_is_over(self, position): #Mouse position in tuple (x,y)
-        if position[0] > self.x and position[0] < self.x + self.width:
-            if position[1] > self.y and position[1] < self.y + self.height:
-                return True
-        return False
+    def cursor_is_over(self, cursor_position): #Determines if the mouse cursor position in tuple (x,y) is over the button
+        return (self.x,self.y,self.width,self.height,cursor_position)
