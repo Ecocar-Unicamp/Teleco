@@ -27,4 +27,4 @@ class button():
             (self.screen).blit(text, (self.x + (self.width/2 - text.get_width()/2), self.y + (self.height/2 - text.get_height()/2)))
 
     def cursor_is_over(self, cursor_position): #Determines if the mouse cursor position in tuple (x,y) is over the button
-        return (self.x,self.y,self.width,self.height,cursor_position)
+        return cursor_is_over(self.x,self.y,self.width,self.height,cursor_position)
