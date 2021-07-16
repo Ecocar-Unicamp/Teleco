@@ -6,6 +6,7 @@ class tabs:
     def __init__(self, index, list_of_infographs, selected = False):
         self.index = index
         self.list_of_infographs = list_of_infographs
+        self.selected_infographs = []
         self.checkboxes = []
         self.selected = selected
 
@@ -17,4 +18,11 @@ class tabs:
         if self.selected:
             for i in range(len(self.list_of_infographs)):
                 self.checkboxes[i].draw(window, (0, 0, 0))
-                graph() #function for creating the graphs
+                if self.checkboxes[i].state:
+                    if not self.list_of_infographs[i] in self.selected_infographs:
+                        self.selected_infographs.append(self.list_of_infographs[i])
+                elif not self.checkboxes[i].state:
+                    if self.list_of_infographs[i] in self.selected_infographs:
+                        self.selected_infographs.remove(self.list_of_infographs[i])
+            for j in self.selected_infographs:
+                graph(i) #function for creating the graphs
