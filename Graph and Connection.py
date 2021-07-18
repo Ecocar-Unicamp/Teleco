@@ -7,9 +7,10 @@ import time
 #parametrizar tudo
 #deixar explicação
 
-##necessario
 #except electronic prototyping platform desconectou
 #checar sempre se listas vazias - "Identified: PermissionError"
+#ultimos valores  - pode ser ao lado das checks
+#info tempo na barra
 
 pygame.init()
 
@@ -63,7 +64,19 @@ class button():
         return cursor_is_over(self.x,self.y,self.width,self.height,cursor_position)
 
 #button for connecting with the electronic prototyping platform
-connection_button = button(window_of_visualization,(255,0,0), 100, 100, 100, 20, "Connect")
+message_connection_button_0 = "Connect"
+message_connection_button_1 = "Connecting"
+message_connection_button_2 = "Connected"
+message_connection_button_30 = "Verify Link"
+message_connection_button_31 = "Error"
+connection_button_color = (255,0,0)
+connection_button = button(window_of_visualization,connection_button_color, 100, 100, 100, 20, message_connection_button_0)
+
+#button for freezing or defreezing the graph
+message_freezing_button_0 = "Freeze"
+message_freezing_button_1 = "Live Data"
+freezing_button_color = (0,0,255)
+freezing_button = button(window_of_visualization,freezing_button_color,100,140,100,20, message_freezing_button_0)
 
 #Information holder for individual graphs
 class infograph():
@@ -109,7 +122,7 @@ def connect():
             timing = time.time()
             while not serial_COM_port.in_waiting or (time.time() - timing < 3):
                 pass
-            if serial_COM_port.in_waiting:
+            if serial_COM_port.in_waiting: #'''while in waiting'''##############################################
                 input = serial_COM_port.readline().decode('utf-8').strip()
                 print(input)
                 if(input == "begin"): #any other case: serial_COM_port = None
@@ -171,8 +184,8 @@ class graph():
         self.size_of_frame = None #number of points shown of the smallest step's list
         self.list_of_infographs = [] #atualizado automaticamente no inicio do while(1) para selecionadas por checks
 
-        self.previous_highest_and_lowest_values_list = [] #tuple (highest value, lowest value, position)
         self.current_list_of_coordinates = []
+        self.current_list_of_values_initial_and_final_positions = []
 
     def cursor_is_over(self, cursor_position):  # Determines if the mouse cursor position in tuple (x,y) is over the button
         return cursor_is_over(self.x, self.y, self.width, self.height, cursor_position)
@@ -183,67 +196,52 @@ class graph():
         pygame.draw.rect(self.window_of_visualization, graph_background_color, (self.x, self.y, self.width, self.height))
 
         if serial_COM_port:
-            #self.previous_highest_and_lowest_values_list = [] #prevenir computação extra
             self.current_list_of_coordinates = []
+            self.current_list_of_values_initial_and_final_positions = []
             smallest_step_x_graphic_step = self.width/(self.size_of_frame - 1)##############
 
             for i in range(len(self.list_of_infographs)):
                 self.current_list_of_coordinates.append([])
                 if len(self.list_of_infographs[i].list_of_values) > 1:##########******************
                     '''
-                    # conferir se todos os selfs precisam ser selfs
+                    # conferir se todos os selfs precisam ser selfs ou algum outro dado precisa ser self
                     # conferir se nao generaliza coisa que se baseia na lista de infog recebida - smallest_step_infograph.step
-                    # verificar intervalo para valores saindo pra baixo
-                    # verificar valor inicial x para nao menor step saindo para esquerda
-                    # valor max, min para adicao de valor - considerar os que saíram, adicionados (pode ter q percorrer tudo de novo), posicao 0
                     # pos processamento para bordas: y = ax + b, valor max e min
-                    # valores negativos precisam de variavel para menor valor - cuidado maior = menor
-                    # minimo tamanho do graph é o valor do menor passo
-                    # checagem size of frame > pos inicial + len lista
                     # diversos eixos y: abreviação de nome
                     '''
+                    '''ESTA DANDO PROBLEAMA, SAI PRA FORA DA JANELA'''
                     relative_step_proportion = smallest_step_infograph.step/self.list_of_infographs[i].step
-                    list_of_y = []
+                    list_of_selected_values = []
                     initial_position_in_list = None
                     final_position_in_list = None
 
                     if len(self.list_of_infographs[i].list_of_values) <= self.size_of_frame * relative_step_proportion:
                         initial_position_in_list = 0
-                        final_position_in_list = len(self.list_of_infographs[i].list_of_values)
-                    else:#############################################conferir
+                    else:
                         initial_position_in_list = self.initial_smallest_step_position_in_list * relative_step_proportion
                         if int(initial_position_in_list) == initial_position_in_list:
                             initial_position_in_list = int(initial_position_in_list)
-                            #final_position_in_list = int((self.initial_smallest_step_position_in_list + self.size_of_frame) * relative_step_proportion)
                         else:
-                            #final_position_in_list = int(relative_step_proportion * (self.initial_smallest_step_position_in_list + self.size_of_frame) +
-                                                         #(self.list_of_infographs[i].step - int(initial_position_in_list + 1) % initial_position_in_list))
                             initial_position_in_list = int(initial_position_in_list) + 1
-                        final_position_in_list = int(relative_step_proportion * (self.initial_smallest_step_position_in_list + self.size_of_frame - 1)) + 1
-                    list_of_y = self.list_of_infographs[i].list_of_values[initial_position_in_list: final_position_in_list]##################
+                    final_position_in_list = int(relative_step_proportion * (self.initial_smallest_step_position_in_list + self.size_of_frame - 1)) + 1
 
-                    if len(list_of_y) > 2:#############**********************
-                        highest_value = None
-                        lowest_value = None
-                        for j in range(len(list_of_y)): ##############################prevenir computação extra
-                            if not highest_value or list_of_y[j] > highest_value:
-                                highest_value = list_of_y[j]
-                            if not lowest_value or list_of_y[j] < lowest_value:
-                                lowest_value = list_of_y[j]
+                    list_of_selected_values = self.list_of_infographs[i].list_of_values[initial_position_in_list: final_position_in_list]
+                    self.current_list_of_values_initial_and_final_positions.append((initial_position_in_list,final_position_in_list))
 
-                        y_difference = highest_value - lowest_value
+                    lowest_value = min(list_of_selected_values)
+                    highest_value = max(list_of_selected_values)
 
-                        graphic_step = smallest_step_x_graphic_step/ relative_step_proportion
-                        initial_x_position = initial_position_in_list * graphic_step - self.initial_smallest_step_position_in_list * smallest_step_x_graphic_step
+                    graphic_step = smallest_step_x_graphic_step/ relative_step_proportion
+                    initial_x_position = initial_position_in_list * graphic_step - self.initial_smallest_step_position_in_list * smallest_step_x_graphic_step
 
-                        for j in range(len(list_of_y)): ########################## ref funcao de conversao de proporcao
+                    for j in range(len(list_of_selected_values)):
 
-                            x_coordinate = self.x + initial_x_position + j * graphic_step
-                            y_coordinate = self.y + self.height - proportional_conversion(list_of_y[j] - lowest_value, y_difference, self.height)
+                        x_coordinate = self.x + initial_x_position + j * graphic_step
+                        y_coordinate = self.y + self.height - proportional_conversion(list_of_selected_values[j] - lowest_value, highest_value - lowest_value, self.height)
 
-                            self.current_list_of_coordinates[i].append((x_coordinate,y_coordinate))
+                        self.current_list_of_coordinates[i].append((x_coordinate,y_coordinate))
 
-                        pygame.draw.lines(window_of_visualization, self.list_of_infographs[i].color, False, self.current_list_of_coordinates[i], line_width)
+                    pygame.draw.lines(window_of_visualization, self.list_of_infographs[i].color, False, self.current_list_of_coordinates[i], line_width)
 
     def info(self, cursor_position): #conditional if cursor_is_over graph
         pygame.draw.line(self.window_of_visualization,graph_info_color,(cursor_position[0],self.y),(cursor_position[0],self.y + self.height),info_line_width)
@@ -265,6 +263,7 @@ running = True
 while running:
 
     connection_button.draw(window_of_visualization)
+    freezing_button.draw(window_of_visualization)
 
     #if serial has received information
     # desconexão inesperada: serial.serialutil.SerialException: ClearCommError failed (PermissionError(13, 'O dispositivo não reconhece o comando.', None, 22))
@@ -294,43 +293,55 @@ while running:
             print(main_graph.size_of_frame)
 
 
-        '''if event.type == pygame.KEYDOWN:
-            live_data = False
-            if event.key == pygame.K_LEFT: #pode passar
-                main_graph.initial_smallest_step_position_in_list -= 1
-            if event.key == pygame.K_RIGHT:
-                main_graph.initial_smallest_step_position_in_list += 1
-            aovivo = False
-    
-        if key_pressed[pygame.K_UP]: #conta como event?
-            live_data = False
-            main_graph.initial_smallest_step_position_in_list += 1
-        if key_pressed[pygame.K_DOWN]:
-            live_data = False
-            main_graph.initial_smallest_step_position_in_list -= 1'''
-
-
         if event.type == pygame.MOUSEBUTTONDOWN and button_pressed == (1,0,0):
             #connects with electronic prototyping platform
             if connection_button.cursor_is_over(cursor_position) and not serial_COM_port:
                 last_text = connection_button.text
-                connection_button.text = "Connecting"
+                connection_button.text = message_connection_button_1
                 connection_button.color = (255,255,0)
                 connection_button.draw(window_of_visualization)
                 pygame.display.update()
                 connect()
                 if serial_COM_port:
                     connection_button.color = (0,255,0)
-                    connection_button.text = "Connected"
+                    connection_button.text = message_connection_button_2
                     main_graph.size_of_frame = 10 * minimum_frame_size #################condicional
                 else:
                     connection_button.color = (255,0,0)
-                    if last_text != "Verify Link":
-                        connection_button.text = "Verify Link"
+                    if last_text != message_connection_button_30:
+                        connection_button.text = message_connection_button_30
                     else: #for visual confirmation
-                        connection_button.text = "Error"
+                        connection_button.text = message_connection_button_31
 
-    if serial_COM_port and (live_data or (not live_data and len(main_graph.list_of_infographs[smallest_step_index].list_of_values) <
+            if freezing_button.cursor_is_over(cursor_position): #ponderar tamanho do valor da lista
+                if freezing_button.text == message_freezing_button_0:
+                    freezing_button.text = message_freezing_button_1
+                    live_data = False
+                elif freezing_button.text == message_freezing_button_1:
+                    freezing_button.text = message_freezing_button_0
+                    live_data = True
+
+
+        if event.type == pygame.KEYDOWN:
+            live_data = False
+            freezing_button.text = message_freezing_button_1
+            if event.key == pygame.K_LEFT: #pode passar
+                main_graph.initial_smallest_step_position_in_list -= 1
+            if event.key == pygame.K_RIGHT:
+                main_graph.initial_smallest_step_position_in_list += 1
+            aovivo = False
+
+    if key_pressed[pygame.K_UP]: #conta como event?
+        live_data = False
+        freezing_button.text = message_freezing_button_1
+        main_graph.initial_smallest_step_position_in_list += 1
+    if key_pressed[pygame.K_DOWN]:
+        live_data = False
+        freezing_button.text = message_freezing_button_1
+        main_graph.initial_smallest_step_position_in_list -= 1
+
+
+    if serial_COM_port and (live_data or (not live_data and len(smallest_step_infograph.list_of_values) <
                      main_graph.size_of_frame + main_graph.initial_smallest_step_position_in_list)):
         main_graph.initial_smallest_step_position_in_list = len(smallest_step_infograph.list_of_values) - main_graph.size_of_frame
         if main_graph.size_of_frame > len(smallest_step_infograph.list_of_values):
