@@ -1,23 +1,33 @@
-#define quantity_of_graphs 3
+#define quantity_of_graphs 6
 
 String graphs[quantity_of_graphs]; //names
 float steps[quantity_of_graphs]; //in seconds
 unsigned long last_times[quantity_of_graphs];
 
 int pot = A0;
-int reading;
+float reading;
+float treated_reading; //remove this
 String received_string;
 
 void setup() {
 
   graphs[0] = "Velocity";
-  steps[0] = 1;
+  steps[0] = 0.3;
 
   graphs[1] = "Current";
   steps[1] = 0.5;
   
   graphs[2] = "RPM";
-  steps[2] = 0.3;
+  steps[2] = 1;
+
+  graphs[3] = "A";
+  steps[3] = 0.7;
+
+  graphs[4] = "B";
+  steps[4] = 0.7;
+
+  graphs[5] = "C";
+  steps[5] = 1.3;
 
   for(int i = 0; i < quantity_of_graphs; i++){
     last_times[i] = 0;
@@ -48,17 +58,26 @@ void loop() {
 
       //trade for CAN entries
       if(i == 0){
-        reading = reading;
+        treated_reading = reading;
       }
       else if(i == 1){
-        reading = (int)reading/2 + 50;
+        treated_reading = 5 + sin(reading);
       }
       else if(i == 2){
-        reading = (int)(reading*1.5);
+        treated_reading = 5 + cos(reading);
+      }
+      else if(i == 3){
+        treated_reading = pow(2,(-1)*reading/100);
+      }
+      else if(i == 4){
+        treated_reading = pow(reading,2);
+      }
+      else if(i == 5){
+        treated_reading = (-1)*reading;
       }
       ///////////////////////////
 
-      Serial.println(graphs[i] + ";" + (String)reading);
+      Serial.println(graphs[i] + ";" + (String)treated_reading);
       last_times[i] = millis();
     }
   }
