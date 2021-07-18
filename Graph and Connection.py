@@ -20,7 +20,7 @@ color_of_screen = (0,128,128)
 window_of_visualization = pygame.display.set_mode((x_size_of_window, y_size_of_window))
 window_of_visualization.fill(color_of_screen)
 
-list_of_colors_for_lines = [(255,0,0),(0,255,0),(0,0,255)]
+list_of_colors_for_lines = [(255,0,0),(0,255,0),(0,0,255),(255,255,0),(255,0,255),(0,255,255)]
 font = pygame.font.Font('freesansbold.ttf', 16)
 
 
@@ -144,16 +144,17 @@ def connect():
 
                         number += 1
 
-                    minimum_frame_size = 3 * biggest_step
+                    minimum_frame_size = 3 * biggest_step / smallest_step_infograph.step
                     break
             serial_COM_port = None
 
 
 graph_info_color = (255,255,255)
 graph_background_color = (0,0,0)
+graph_second_background_color = (50,50,50)
 info_dot_color = (120, 120, 255)
 
-line_width = 3
+line_width = 1
 info_line_width = 1
 info_dot_radius = 3
 
@@ -178,20 +179,22 @@ class graph():
 
     #draws graph
     def draw(self):
+        pygame.draw.rect(self.window_of_visualization, graph_second_background_color,(self.x - 4, self.y - 4, self.width + 8, self.height + 8))
         pygame.draw.rect(self.window_of_visualization, graph_background_color, (self.x, self.y, self.width, self.height))
 
         if serial_COM_port:
-
             #self.previous_highest_and_lowest_values_list = [] #prevenir computação extra
-
             self.current_list_of_coordinates = []
-
-            smallest_step_x_graphic_step = self.width/(self.size_of_frame - 1)
+            smallest_step_x_graphic_step = self.width/(self.size_of_frame - 1)##############
 
             for i in range(len(self.list_of_infographs)):
                 self.current_list_of_coordinates.append([])
-                if len(self.list_of_infographs[i].list_of_values) > 1:
+                if len(self.list_of_infographs[i].list_of_values) > 1:##########******************
                     '''
+                    # conferir se todos os selfs precisam ser selfs
+                    # conferir se nao generaliza coisa que se baseia na lista de infog recebida - smallest_step_infograph.step
+                    # verificar intervalo para valores saindo pra baixo
+                    # verificar valor inicial x para nao menor step saindo para esquerda
                     # valor max, min para adicao de valor - considerar os que saíram, adicionados (pode ter q percorrer tudo de novo), posicao 0
                     # pos processamento para bordas: y = ax + b, valor max e min
                     # valores negativos precisam de variavel para menor valor - cuidado maior = menor
@@ -208,11 +211,18 @@ class graph():
                         initial_position_in_list = 0
                         final_position_in_list = len(self.list_of_infographs[i].list_of_values)
                     else:#############################################conferir
-                        initial_position_in_list = int(self.initial_smallest_step_position_in_list * relative_step_proportion)
-                        final_position_in_list = int((self.initial_smallest_step_position_in_list + self.size_of_frame) * relative_step_proportion)
-                    list_of_y = self.list_of_infographs[i].list_of_values[initial_position_in_list: final_position_in_list]
+                        initial_position_in_list = self.initial_smallest_step_position_in_list * relative_step_proportion
+                        if int(initial_position_in_list) == initial_position_in_list:
+                            initial_position_in_list = int(initial_position_in_list)
+                            #final_position_in_list = int((self.initial_smallest_step_position_in_list + self.size_of_frame) * relative_step_proportion)
+                        else:
+                            #final_position_in_list = int(relative_step_proportion * (self.initial_smallest_step_position_in_list + self.size_of_frame) +
+                                                         #(self.list_of_infographs[i].step - int(initial_position_in_list + 1) % initial_position_in_list))
+                            initial_position_in_list = int(initial_position_in_list) + 1
+                        final_position_in_list = int(relative_step_proportion * (self.initial_smallest_step_position_in_list + self.size_of_frame - 1)) + 1
+                    list_of_y = self.list_of_infographs[i].list_of_values[initial_position_in_list: final_position_in_list]##################
 
-                    if len(list_of_y) > 2:
+                    if len(list_of_y) > 2:#############**********************
                         highest_value = None
                         lowest_value = None
                         for j in range(len(list_of_y)): ##############################prevenir computação extra
@@ -223,46 +233,17 @@ class graph():
 
                         y_difference = highest_value - lowest_value
 
-                        initial_x_position = smallest_step_x_graphic_step * (self.initial_smallest_step_position_in_list * relative_step_proportion - initial_position_in_list)
-                        final_x_position = initial_x_position + (len(list_of_y) - 1) * relative_step_proportion * smallest_step_x_graphic_step
-                        horizontal_multiplier = (final_x_position - initial_x_position) / (len(list_of_y) - 1) #############self precisa comer bordas
+                        graphic_step = smallest_step_x_graphic_step/ relative_step_proportion
+                        initial_x_position = initial_position_in_list * graphic_step - self.initial_smallest_step_position_in_list * smallest_step_x_graphic_step
 
                         for j in range(len(list_of_y)): ########################## ref funcao de conversao de proporcao
 
+                            x_coordinate = self.x + initial_x_position + j * graphic_step
                             y_coordinate = self.y + self.height - proportional_conversion(list_of_y[j] - lowest_value, y_difference, self.height)
-                            x_coordinate = self. x + initial_x_position + j * horizontal_multiplier
+
                             self.current_list_of_coordinates[i].append((x_coordinate,y_coordinate))
 
                         pygame.draw.lines(window_of_visualization, self.list_of_infographs[i].color, False, self.current_list_of_coordinates[i], line_width)
-
-                        '''
-                        if len(lista) - 1 < tamanho:
-                            coord = lista
-                            coord2 = lista2
-                        else:
-                            coord = lista[posicao_inicial: posicao_inicial + janela]
-                            coord2 = lista2[posicao_inicial: posicao_inicial + janela]
-                    
-                        final = []
-                        final2 = []
-                        
-                        if maior_valor > 0:
-                            fator_vertical = (proporcao) * alturadisplay/maior_valor
-                        else:
-                            fator_vertical = (proporcao) * alturadisplay
-                        fator_horizontal = larguradisplay/(tamanho-1)
-                    
-                        x = 0
-                        y = 0
-                    
-                        #tuplas
-                        for j in range(len(coord)):
-                            x = origemx + fator_horizontal*j
-                            y = origemy - fator_vertical*coord[j]
-                            y2 = origemy - fator_vertical*coord2[j]
-                            final.append((x, y))
-                            final2.append((x,y2))
-                        '''
 
     def info(self, cursor_position): #conditional if cursor_is_over graph
         pygame.draw.line(self.window_of_visualization,graph_info_color,(cursor_position[0],self.y),(cursor_position[0],self.y + self.height),info_line_width)
@@ -286,6 +267,7 @@ while running:
     connection_button.draw(window_of_visualization)
 
     #if serial has received information
+    # desconexão inesperada: serial.serialutil.SerialException: ClearCommError failed (PermissionError(13, 'O dispositivo não reconhece o comando.', None, 22))
     if serial_COM_port and serial_COM_port.in_waiting:
         input = serial_COM_port.readline().decode('utf-8').strip()
         print(input)
@@ -311,19 +293,22 @@ while running:
                     main_graph.size_of_frame = minimum_frame_size
             print(main_graph.size_of_frame)
 
-        '''
-        if event.type == pygame.KEYDOWN:
+
+        '''if event.type == pygame.KEYDOWN:
+            live_data = False
             if event.key == pygame.K_LEFT: #pode passar
-                posicao_valores -= 1
+                main_graph.initial_smallest_step_position_in_list -= 1
             if event.key == pygame.K_RIGHT:
-                posicao_valores += 1
+                main_graph.initial_smallest_step_position_in_list += 1
             aovivo = False
     
-        if key_pressed[pygame.K_UP]:
-            posicao_valores += 1
+        if key_pressed[pygame.K_UP]: #conta como event?
+            live_data = False
+            main_graph.initial_smallest_step_position_in_list += 1
         if key_pressed[pygame.K_DOWN]:
-            posicao_valores -= 1
-        '''
+            live_data = False
+            main_graph.initial_smallest_step_position_in_list -= 1'''
+
 
         if event.type == pygame.MOUSEBUTTONDOWN and button_pressed == (1,0,0):
             #connects with electronic prototyping platform
@@ -337,7 +322,7 @@ while running:
                 if serial_COM_port:
                     connection_button.color = (0,255,0)
                     connection_button.text = "Connected"
-                    main_graph.size_of_frame = 10 * minimum_frame_size
+                    main_graph.size_of_frame = 10 * minimum_frame_size #################condicional
                 else:
                     connection_button.color = (255,0,0)
                     if last_text != "Verify Link":
