@@ -24,5 +24,3 @@ class tabs:
                 elif not self.checkboxes[i].state:
                     if self.list_of_infographs[i] in self.selected_infographs:
                         self.selected_infographs.remove(self.list_of_infographs[i])
-            for j in self.selected_infographs:
-                graph(i) #function for creating the graphs
