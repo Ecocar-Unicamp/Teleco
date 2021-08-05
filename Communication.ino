@@ -2,6 +2,7 @@
 
 String graphs[quantity_of_graphs]; //names
 float steps[quantity_of_graphs]; //in seconds
+String uom[quantity_of_graphs]; //unit of measurement
 unsigned long last_times[quantity_of_graphs];
 
 int pot = A0;
@@ -12,22 +13,28 @@ String received_string;
 void setup() {
 
   graphs[0] = "Velocity";
-  steps[0] = 0.3;
+  steps[0] = 2.3;
+  uom[0] = "km/h";
 
   graphs[1] = "Current";
   steps[1] = 0.5;
+  uom[1] = "mA";
   
   graphs[2] = "RPM";
   steps[2] = 1;
+  uom[2] = "Hz";
 
   graphs[3] = "A";
   steps[3] = 0.7;
+  uom[3] = "ua";
 
   graphs[4] = "B";
-  steps[4] = 0.7;
+  steps[4] = 1.7;
+  uom[4] = "ub";
 
   graphs[5] = "C";
-  steps[5] = 1.3;
+  steps[5] = 0.3;
+  uom[5] = "uc";
 
   for(int i = 0; i < quantity_of_graphs; i++){
     last_times[i] = 0;
@@ -46,7 +53,7 @@ void loop() {
     if(received_string == "connect"){
       Serial.println("begin");
       for(int i = 0; i < quantity_of_graphs; i++){
-        Serial.println(graphs[i] + ";" + steps[i]);
+        Serial.println(graphs[i] + ";" + steps[i] + ";" + uom[i]);
       }
       Serial.println("end");
     }
