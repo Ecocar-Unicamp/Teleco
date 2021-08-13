@@ -16,6 +16,8 @@ deixar explicação
 
 '''
 fazer:
+revisar nomes, comentarios, organização em conjunto
+definir proximas melhorias
 juntar função de salvamento
 transpor classes e funções para arquivos separados
 fazer identificaçã na lista de infographs por indice e nao por nome
@@ -27,6 +29,7 @@ função única para desenhar grupamento de entidades, ex: botões
 connect DEVE MOSTRAR SE FOI DESCONECTADO: "Disconnected"
 conferir se todos os selfs precisam ser selfs ou algum outro dado precisa ser self
 conferir se nao generaliza coisa que se baseia na lista de infog recebida - smallest_step_infograph.step
+passar número e não o nome pelo serial
 '''
 
 pygame.init()  # pode ser movido para outro lugar
