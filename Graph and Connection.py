@@ -16,6 +16,7 @@ deixar explicação
 
 '''
 fazer:
+juntar função de salvamento
 transpor classes e funções para arquivos separados
 fazer identificaçã na lista de infographs por indice e nao por nome
 except electronic prototyping platform desconectou
@@ -78,7 +79,7 @@ class button():
         if self.text != '':
             text = font.render(self.text, True, (0, 0, 0))
             (self.window).blit(text, (
-            self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
+                self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
 
     def cursor_is_over(self,
                        cursor_position):  # Determines if the mouse cursor position in tuple (x,y) is over the button
@@ -204,7 +205,11 @@ info_dot_color = (120, 120, 255)
 
 line_width = 1
 info_line_width = 1
-info_dot_radius = 3
+info_dot_radius = 4
+
+axis_color = (200,200,200)
+number_of_x_marks = 7
+number_of_y_marks = 5
 
 
 # graph for visualization
@@ -231,10 +236,36 @@ class graph():
     '''deve fazer desenho dos eixos y; colocar cor respectiva nas checkboxes, indicar unidade'''
 
     def draw(self):
-        pygame.draw.rect(self.window_of_visualization, graph_second_background_color,
-                         (self.x - 4, self.y - 4, self.width + 8, self.height + 8))
-        pygame.draw.rect(self.window_of_visualization, graph_background_color,
-                         (self.x, self.y, self.width, self.height))
+        pygame.draw.rect(self.window_of_visualization, graph_second_background_color,(self.x - 4, self.y - 4, self.width + 8, self.height + 48))
+        pygame.draw.rect(self.window_of_visualization, graph_background_color, (self.x, self.y, self.width, self.height))
+        pygame.draw.rect(self.window_of_visualization, axis_color, (self.x, self.y + self.height, self.width, 40))
+
+        if serial_COM_port:
+            self.current_list_of_coordinates = []
+            self.current_list_of_values_initial_and_final_positions = []
+            smallest_step_x_graphic_step = self.width/(self.size_of_frame - 1)
+
+            if number_of_x_marks: #graphic step pode ser calculado so no inicio
+                time_step = None
+                if number_of_x_marks == 1:
+                    time_step = (self.size_of_frame - 1) * smallest_step_infograph.step / (number_of_x_marks)
+                    graphic_step = self.width / (number_of_x_marks)
+                else:
+                    time_step = (self.size_of_frame - 1) * smallest_step_infograph.step / (number_of_x_marks - 1)
+                    graphic_step = self.width / (number_of_x_marks - 1)
+                for position in range(number_of_x_marks):
+                    pygame.draw.circle(self.window_of_visualization, info_dot_color,
+                                       (self.x + position * graphic_step, self.y + self.height), info_dot_radius)
+                    timestamp = datetime.timedelta(seconds = (self.initial_smallest_step_position_in_list * smallest_step_infograph.step) +
+                                                             (position * time_step))
+                    text = font.render(str(timestamp)[2:9], True, (0, 0, 0)) #########precisa ser revisado caso trabalhemos com tempos grandes ou passos pequenos
+                    if position == 0:
+                        (self.window_of_visualization).blit(text, (self.x + position * graphic_step, self.y + self.height))
+                    elif position == number_of_x_marks - 1:
+                        (self.window_of_visualization).blit(text, (self.x + position * graphic_step - text.get_width(), self.y + self.height))
+                    else:
+                        (self.window_of_visualization).blit(text, (self.x + position * graphic_step - text.get_width()/2, self.y + self.height))
+
 
         if serial_COM_port:
             self.current_list_of_coordinates = []
@@ -258,7 +289,7 @@ class graph():
                         else:
                             initial_position_in_list = int(initial_position_in_list) + 1
                     final_position_in_list = int(relative_step_proportion * (
-                                self.initial_smallest_step_position_in_list + self.size_of_frame - 1)) + 1
+                            self.initial_smallest_step_position_in_list + self.size_of_frame - 1)) + 1
 
                     list_of_selected_values = self.list_of_infographs[i].list_of_values[
                                               initial_position_in_list: final_position_in_list]
@@ -309,16 +340,20 @@ class bar:
         self.y = y
         self.width = width
         self.height = height
+
     def draw(self):
         pygame.draw.rect(self.window, self.color, (self.x, self.y, self.width, self.height), 0)
+
     def pointer(self, color, position_x, position_y, thickness):
-        pygame.draw.rect(self.window, color,(position_x - thickness, position_y + 23 - thickness, 5, self.height - thickness))
+        pygame.draw.rect(self.window, color,
+                         (position_x - thickness, position_y + 23 - thickness, 5, self.height - thickness))
+
     def cursor_is_over(self, cursor_position):  # Determines if the mouse cursor position in tuple (x,y) is over the bar
         return cursor_is_over(self.x, self.y, self.width, self.height, cursor_position)
 
 
-bar = bar(window_of_visualization, (141, 141, 141), main_graph.x - pointer_thickness,
-          main_graph.y + main_graph.height + 20, main_graph.width + 1.5*pointer_thickness, 30)
+main_bar = bar(window_of_visualization, (141, 141, 141), main_graph.x - pointer_thickness,
+          main_graph.y + main_graph.height + 50, main_graph.width + 1.5 * pointer_thickness, 30)
 pointer_pos = main_graph.x + main_graph.width - pointer_thickness
 checkbox_main_color = (53, 87, 28)
 
@@ -348,7 +383,7 @@ class checkbox:
                                         int(1.5 * self.size))  ################### verificar se parametrizavel
             text = font2.render("X", True, (0, 0, 0))
             (self.window).blit(text, (
-            self.x + (self.size / 2 - text.get_width() / 2), self.y + (self.size / 2 - text.get_height() / 2)))
+                self.x + (self.size / 2 - text.get_width() / 2), self.y + (self.size / 2 - text.get_height() / 2)))
 
     def cursor_is_over(self, cursor_position):
         return cursor_is_over(self.x, self.y, self.size, self.size, cursor_position)
@@ -423,7 +458,7 @@ class tab:
         if self.text != '':
             text = font.render(self.text, True, (0, 0, 0))
             (self.window).blit(text, (
-            self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
+                self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
 
         if self.selected:
             pygame.draw.rect(self.window, (100, 100, 100), (1150, 50, 200, 400), 0)  # deixar em f do tamanho abaixo
@@ -458,8 +493,8 @@ while running:
     connection_button.draw(window_of_visualization)
     freezing_button.draw(window_of_visualization)
     new_tab_button.draw(window_of_visualization)
-    bar.draw()
-    #pygame.draw.rect(window_of_visualization, (100, 100, 100), (80, 225, 200, 600), 0)
+    main_bar.draw()
+    pygame.draw.rect(window_of_visualization, (100, 100, 100), (90, 225, 150, 500), 0) #precisa esconder guias apagadas
     for t in list_of_tabs:
         t.draw(window_of_visualization)
 
@@ -486,7 +521,7 @@ while running:
         if event.type == pygame.MOUSEWHEEL:
             if main_graph.size_of_frame:
                 main_graph.size_of_frame += (-1) * event.y * (
-                            1 + int(main_graph.size_of_frame / 10))  # proportional growth
+                        1 + int(main_graph.size_of_frame / 10))  # proportional growth
                 if main_graph.size_of_frame < minimum_frame_size:
                     main_graph.size_of_frame = minimum_frame_size
 
@@ -557,20 +592,23 @@ while running:
                         else:
                             selected_tab.selected_names.append(selected_tab.checkboxes[c].name)
                         selected_tab.checkboxes[c].state = not selected_tab.checkboxes[c].state
-            # checks if user clicks the bar
-            if bar.cursor_is_over(cursor_position):
-                if smallest_step_infograph != None:
-                    main_graph.initial_smallest_step_position_in_list = int( 
+
+            # checks if user clicks the bar #################essa parte pode ser embutida na própria classe
+            if smallest_step_infograph != None:
+                if main_bar.cursor_is_over(cursor_position):
+                    main_graph.initial_smallest_step_position_in_list = int(
                         proportional_conversion(cursor_position[0] - main_graph.x,
                                                 main_graph.width,
-                                                len(smallest_step_infograph.list_of_values) - main_graph.size_of_frame)) #updates values shown in graph based on click location
-                    if main_graph.size_of_frame < len(smallest_step_infograph.list_of_values): 
+                                                len(smallest_step_infograph.list_of_values) - main_graph.size_of_frame))  # updates values shown in graph based on click location
+                    if main_graph.size_of_frame < len(smallest_step_infograph.list_of_values):
                         pointer_pos = proportional_conversion(main_graph.initial_smallest_step_position_in_list,
                                                               len(smallest_step_infograph.list_of_values) - main_graph.size_of_frame,
-                                                              main_graph.width) # updates pointer position based on click location
-                # frezzes data shown
-                freezing_button.text = message_freezing_button_1 
-                live_data = False
+                                                              main_graph.width)  # updates pointer position based on click location
+                    # freezes shown data
+                    freezing_button.text = message_freezing_button_1
+                    live_data = False
+
+                ##############################
 
         # displaces the graph
         if event.type == pygame.KEYDOWN:
@@ -615,12 +653,12 @@ while running:
     main_graph.draw()
     if main_graph.cursor_is_over(cursor_position):
         main_graph.info(cursor_position)
-        
-    # updates pointer position while more values are taken into account
+
+    # updates pointer position while more values are taken into account ##############essa parte pode ser embutida na propria classe
     if smallest_step_infograph != None:
         pointer_pos = proportional_conversion(main_graph.initial_smallest_step_position_in_list,
                                               len(smallest_step_infograph.list_of_values) - main_graph.size_of_frame,
                                               main_graph.width - pointer_thickness)
-        bar.pointer(color_of_pointer, pointer_pos + main_graph.x, main_graph.y + main_graph.height, pointer_thickness)
+        main_bar.pointer(color_of_pointer, pointer_pos + main_graph.x, main_graph.y + main_graph.height + 30, pointer_thickness)
 
     pygame.display.update()
