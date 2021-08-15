@@ -268,7 +268,7 @@ class graph():
                                        (self.x + position * graphic_step, self.y + self.height), info_dot_radius)
                     timestamp = datetime.timedelta(seconds = (self.initial_smallest_step_position_in_list * smallest_step_infograph.step) +
                                                              (position * time_step))
-                    text = font.render(str(timestamp)[2:9], True, (0, 0, 0)) #########precisa ser revisado caso trabalhemos com tempos grandes ou passos pequenos
+                    text = minor_font.render(str(timestamp)[2:9], True, (0, 0, 0)) #########precisa ser revisado caso trabalhemos com tempos grandes ou passos pequenos
                     if position == 0:
                         (self.window_of_visualization).blit(text, (self.x + position * graphic_step, self.y + self.height))
                     elif position == number_of_x_marks - 1:
@@ -542,7 +542,6 @@ while running:
     connection_button.draw(window_of_visualization)
     freezing_button.draw(window_of_visualization)
     new_tab_button.draw(window_of_visualization)
-    main_bar.draw()
     pygame.draw.rect(window_of_visualization, (100, 100, 100), (90, 225, 150, 500), 0) #precisa esconder guias apagadas
     for t in list_of_tabs:
         t.draw(window_of_visualization)
@@ -625,6 +624,10 @@ while running:
                     selected_tab.selected = False
                     selected_tab = list_of_tabs[t]
                     selected_tab.selected = True
+                    main_graph.x = main_graph_x + len(list_of_tabs[t].selected_names) * y_axis_lenght
+                    main_graph.width = main_graph_width - len(list_of_tabs[t].selected_names) * y_axis_lenght
+                    main_bar.x = main_graph.x
+                    main_bar.width = main_graph.width
                     break
                 if list_of_tabs[t].cursor_is_over_close(cursor_position) and len(list_of_tabs) > 1:
                     test = list_of_tabs[t]
