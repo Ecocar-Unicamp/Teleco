@@ -44,6 +44,7 @@ window_of_visualization.fill(color_of_screen)
 
 list_of_colors_for_lines = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255), (0, 255, 255)]
 font = pygame.font.Font('freesansbold.ttf', 16)
+minor_font = pygame.font.Font('freesansbold.ttf', 12)
 
 
 def cursor_is_over(x, y, width, height,
@@ -214,6 +215,13 @@ axis_color = (200,200,200)
 number_of_x_marks = 7
 number_of_y_marks = 5
 
+main_graph_x = 300
+main_graph_y = 100
+main_graph_width = 800
+main_graph_height = 400
+
+y_axis_lenght = 50
+
 
 # graph for visualization
 class graph():
@@ -236,10 +244,8 @@ class graph():
         return cursor_is_over(self.x, self.y, self.width, self.height, cursor_position)
 
     # draws graph
-    '''deve fazer desenho dos eixos y; colocar cor respectiva nas checkboxes, indicar unidade'''
-
     def draw(self):
-        pygame.draw.rect(self.window_of_visualization, graph_second_background_color,(self.x - 4, self.y - 4, self.width + 8, self.height + 48))
+        pygame.draw.rect(self.window_of_visualization, graph_second_background_color,(main_graph_x - 4, main_graph_y - 4, main_graph_width + 8, main_graph_height + 88))
         pygame.draw.rect(self.window_of_visualization, graph_background_color, (self.x, self.y, self.width, self.height))
         pygame.draw.rect(self.window_of_visualization, axis_color, (self.x, self.y + self.height, self.width, 40))
 
@@ -248,7 +254,8 @@ class graph():
             self.current_list_of_values_initial_and_final_positions = []
             smallest_step_x_graphic_step = self.width/(self.size_of_frame - 1)
 
-            if number_of_x_marks: #graphic step pode ser calculado so no inicio
+            #X AXIS
+            if number_of_x_marks: #graphic step pode ser calculado so no inicio; acho q esse if n precisa
                 time_step = None
                 if number_of_x_marks == 1:
                     time_step = (self.size_of_frame - 1) * smallest_step_infograph.step / (number_of_x_marks)
@@ -268,6 +275,21 @@ class graph():
                         (self.window_of_visualization).blit(text, (self.x + position * graphic_step - text.get_width(), self.y + self.height))
                     else:
                         (self.window_of_visualization).blit(text, (self.x + position * graphic_step - text.get_width()/2, self.y + self.height))
+
+            #Y AXIS
+            pygame.draw.rect(self.window_of_visualization, axis_color, (main_graph_x, self.y, len(selected_tab.selected_names) * y_axis_lenght, self.height))
+            for i in range(len(selected_tab.selected_names)): ###############pode estilizar as cores
+                pygame.draw.line(window_of_visualization,(255,255,255),(main_graph_x + (i + 1/2) * y_axis_lenght, self.y),
+                                 (main_graph_x + (i + 1/2) * y_axis_lenght, self.y + self.height), width=1)
+                text = font.render(selected_tab.selected_names[i][:3], True, (0, 0, 0))
+                (self.window_of_visualization).blit(text, (main_graph_x + (i + 1/2) * y_axis_lenght - text.get_width()/2, self.y + self.height))
+
+            graphic_step = self.height / (number_of_y_marks - 1)
+            for position in range(number_of_y_marks):
+                pygame.draw.line(window_of_visualization, (255, 255, 255),
+                                 (main_graph_x, self.y + position * graphic_step),
+                                 (self.x + self.width, self.y + position * graphic_step), width=1)
+
 
 
         if serial_COM_port:
@@ -302,6 +324,31 @@ class graph():
                     lowest_value = min(list_of_selected_values)
                     highest_value = max(list_of_selected_values)
 
+                    ####### Y AXIS ############
+                    value_step = (highest_value - lowest_value) / (number_of_y_marks - 1)
+                    graphic_step = self.height / (number_of_y_marks - 1)
+                    for position in range(number_of_y_marks):
+                        value = lowest_value + position * value_step
+                        if len(str(value)) > 6:
+                            value = "{:.1e}".format(value)
+                        text = minor_font.render(str(value), True, (0, 0, 0))
+                        ########## essa parte precisa ser revisada para incluir notação científica caso trabalhemos com valores pequenos
+                        #scientific_notation = "{:.1e}".format(lowest_value + position * value_step)
+                        if position == 0:
+                            (self.window_of_visualization).blit(text,(
+                                main_graph_x + (1/2 + i) * y_axis_lenght - text.get_width()/2,
+                                self.y + self.height - position * graphic_step - text.get_height()))
+                        elif position == number_of_y_marks - 1:
+                            (self.window_of_visualization).blit(text, (
+                                main_graph_x + (1 / 2 + i) * y_axis_lenght - text.get_width() / 2,
+                                self.y + self.height - position * graphic_step))
+                        else:
+                            (self.window_of_visualization).blit(text, (
+                                main_graph_x + (1 / 2 + i) * y_axis_lenght - text.get_width() / 2,
+                                self.y + self.height - position * graphic_step - text.get_height() / 2))
+
+
+
                     graphic_step = smallest_step_x_graphic_step / relative_step_proportion
                     initial_x_position = initial_position_in_list * graphic_step - self.initial_smallest_step_position_in_list * smallest_step_x_graphic_step
 
@@ -327,8 +374,7 @@ class graph():
         coordinate = cursor_position
         pygame.draw.circle(self.window_of_visualization, info_dot_color, coordinate, info_dot_radius)
 
-
-main_graph = graph(window_of_visualization, 300, 100, 800, 400)
+main_graph = graph(window_of_visualization, main_graph_x, main_graph_y, main_graph_width, main_graph_height)
 
 cursor_position = None
 live_data = True
@@ -545,6 +591,13 @@ while running:
                     list_of_tabs.append(tab(window_of_visualization, 100, 240, 100, 20, "Tab 1",
                                             True))  ################################### simplificar
                     selected_tab = list_of_tabs[0]
+
+                    ##################eixos y
+                    main_graph.x += len(list_of_infographs) * y_axis_lenght
+                    main_graph.width -= len(list_of_infographs) * y_axis_lenght
+                    main_bar.x = main_graph.x
+                    main_bar.width = main_graph.width
+
                 else:
                     connection_button.color = (255, 0, 0)
                     if last_text != message_connection_button_30:
@@ -592,8 +645,14 @@ while running:
                     if selected_tab.checkboxes[c].cursor_is_over(cursor_position):
                         if selected_tab.checkboxes[c].state:
                             selected_tab.selected_names.remove(selected_tab.checkboxes[c].name)
+                            main_graph.x -= y_axis_lenght
+                            main_graph.width += y_axis_lenght
                         else:
                             selected_tab.selected_names.append(selected_tab.checkboxes[c].name)
+                            main_graph.x += y_axis_lenght
+                            main_graph.width -= y_axis_lenght
+                        main_bar.x = main_graph.x
+                        main_bar.width = main_graph.width
                         selected_tab.checkboxes[c].state = not selected_tab.checkboxes[c].state
 
             # checks if user clicks the bar #################essa parte pode ser embutida na própria classe
@@ -654,6 +713,7 @@ while running:
                     main_graph.list_of_infographs.append(equals)
 
     main_graph.draw()
+    main_bar.draw()
     if main_graph.cursor_is_over(cursor_position):
         main_graph.info(cursor_position)
 
