@@ -34,6 +34,10 @@ passar número e não o nome pelo serial
 
 pygame.init()  # pode ser movido para outro lugar
 
+pygame.display.set_caption("Telemetry plotter") #program name
+Icon = pygame.image.load("Logo_blurange.png") #program icon image
+pygame.display.set_icon(Icon)
+
 x_size_of_window = 1400
 y_size_of_window = 650
 color_of_screen = (0, 128, 128)
@@ -45,6 +49,9 @@ window_of_visualization.fill(color_of_screen)
 list_of_colors_for_lines = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255), (0, 255, 255)]
 font = pygame.font.Font('freesansbold.ttf', 16)
 minor_font = pygame.font.Font('freesansbold.ttf', 12)
+
+version_text = font.render("Telemetry plotter version: 1.0", False, (0, 0, 0)) #program version info
+version_text_position = (0, y_size_of_window -16)
 
 
 def cursor_is_over(x, y, width, height,
