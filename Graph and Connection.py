@@ -48,8 +48,11 @@ dummy_infograph = None
 pygame.init()  # pode ser movido para outro lugar
 
 pygame.display.set_caption("Telemetry Plotter") #program name
-Icon = pygame.image.load("Logo_blurange.png") #program icon image
-pygame.display.set_icon(Icon)
+try:
+    Icon = pygame.image.load("Logo_blurange.png") #program icon image
+    pygame.display.set_icon(Icon)
+except:
+    print("No Logo found")
 
 x_size_of_window = 1400
 y_size_of_window = 650
@@ -595,8 +598,8 @@ selected_tab = None
 last_time = 0
 
 
-'''#DUMMY DATA for testing
-dummy_infograph = None
+#DUMMY DATA for testing without serial - just uncomment this part
+'''
 dummy_infograph = infograph("Dummy", 0.5, list_of_colors_for_lines[0], "ud")
 list_of_infographs = [dummy_infograph]
 serial_COM_port = None
@@ -604,16 +607,14 @@ biggest_step = dummy_infograph.step
 smallest_step_infograph = dummy_infograph
 minimum_frame_size = 3
 main_graph.size_of_frame = 10 * minimum_frame_size
-list_of_tabs.append(tab(window_of_visualization, 100, 240, 100, 20, "Tab 1",
-                                            True))  ################################### simplificar
+list_of_tabs.append(tab(window_of_visualization, 100, 240, 100, 20, "Tab 1",True))
 selected_tab = list_of_tabs[0]
-
-##################eixos y
+#y axis
 main_graph.x += len(list_of_infographs) * y_axis_lenght
 main_graph.width -= len(list_of_infographs) * y_axis_lenght
 main_bar.x = main_graph.x
-main_bar.width = main_graph.width'''
-
+main_bar.width = main_graph.width
+'''
 
 while running:
 
