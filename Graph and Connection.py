@@ -5,6 +5,15 @@ import datetime  # alternative library: time - time.localtime([5])
 import time
 
 '''
+Marcadores:
+#-#-#-#-#-#-#-#-#-#-#-# TítuloTópico #-#-#-#-#-#-#-#-#-#-#-#
+#-_-_-_-_-_-_-_-_-_-_-# Tópico / Subtópico / SubSubtópico
+#*_*_*_*_*_*# Explicação
+#$%$%$%$%$%$%$%$%# Extra #$%$%$%$%$%$%$%$%#
+############ Não Formatado
+'''
+
+'''
 comentários em inglês servem para explicar o código; em português, fazem um direcionamento de futuras mudanças
 '''
 
@@ -16,10 +25,14 @@ deixar explicação
 
 '''
 fazer:
+CODIGO DUMMY
+*********cor linhas, sem 0 exp, 3 alg significativos, condicional para notação cientifica
+desenhar necessário básico antes de conectar; definnir padrão para detectar se está conectado
+resizing: https://www.youtube.com/watch?v=edJZOQwrMKw&list=WL&index=5&t=233s&ab_channel=DaFluffyPotato
 revisar nomes, comentarios, organização em conjunto
 definir proximas melhorias
 juntar função de salvamento
-transpor classes e funções para arquivos separados
+transpor classes e funções para archuivos separados
 fazer identificaçã na lista de infographs por indice e nao por nome
 except electronic prototyping platform desconectou
 checar sempre se listas vazias - "Identified: PermissionError"
@@ -31,10 +44,10 @@ conferir se todos os selfs precisam ser selfs ou algum outro dado precisa ser se
 conferir se nao generaliza coisa que se baseia na lista de infog recebida - smallest_step_infograph.step
 passar número e não o nome pelo serial
 '''
-
+dummy_infograph = None
 pygame.init()  # pode ser movido para outro lugar
 
-pygame.display.set_caption("Telemetry plotter") #program name
+pygame.display.set_caption("Telemetry Plotter") #program name
 Icon = pygame.image.load("Logo_blurange.png") #program icon image
 pygame.display.set_icon(Icon)
 
@@ -50,8 +63,45 @@ list_of_colors_for_lines = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0)
 font = pygame.font.Font('freesansbold.ttf', 16)
 minor_font = pygame.font.Font('freesansbold.ttf', 12)
 
-version_text = font.render("Telemetry plotter version: 1.0", False, (0, 0, 0)) #program version info
+version_text = font.render("Telemetry plotter version: 1.0", False, (0, 0, 0)) #program version info#######################
 version_text_position = (0, y_size_of_window -16)
+
+
+#Function creates a file to be used to save the data
+def CreateArch(list_of_infographs):
+    #Creates the file name with current the date and time
+    date = datetime.datetime.today()
+    arch_name = "telemetry data" + str(date.day) + str(date.month) + str(date.year) + str(date.hour) + str(date.minute) + str(date.second)+ ".txt"
+
+    #Creates the file and returns file name. If a file with this name already exists prints error menssage
+    try:
+        arch = open(arch_name, "w")
+
+        arch.write("Data collection started at: " + str(date.day) + str(date.month) + str(date.year) + str(date.hour) + str(date.minute) + str(date.second) + "\n")
+        arch.write("time ")
+        for i in list_of_infographs:
+            arch.write(i.name + " ")
+            arch.write("\n")
+        arch.close()
+
+        return arch_name
+
+    except IOError:
+        print("ERROR: save file with this name already exists")
+
+def Save_data(arch_name, list_of_infographs, time): ############salvamento em tempo real
+    #opens file
+    arch = open(arch_name, "a")
+
+    #writes the new data for each infograph in the file
+    arch.write(str(time))
+    for i in list_of_infographs:
+        arch.write(" ; ")
+        arch.write(i.list_of_values[-1])
+    arch.write("\n")
+
+    #closes the file
+    arch.close()
 
 
 def cursor_is_over(x, y, width, height,
@@ -256,7 +306,7 @@ class graph():
         pygame.draw.rect(self.window_of_visualization, graph_background_color, (self.x, self.y, self.width, self.height))
         pygame.draw.rect(self.window_of_visualization, axis_color, (self.x, self.y + self.height, self.width, 40))
 
-        if serial_COM_port:
+        if serial_COM_port or dummy_infograph:
             self.current_list_of_coordinates = []
             self.current_list_of_values_initial_and_final_positions = []
             smallest_step_x_graphic_step = self.width/(self.size_of_frame - 1)
@@ -299,7 +349,7 @@ class graph():
 
 
 
-        if serial_COM_port:
+        if serial_COM_port or dummy_infograph:
             self.current_list_of_coordinates = []
             self.current_list_of_values_initial_and_final_positions = []
             smallest_step_x_graphic_step = self.width / (self.size_of_frame - 1)
@@ -540,9 +590,30 @@ class tab:
     def cursor_is_over_close(self, cursor_position):
         return cursor_is_over(self.close_x, self.close_y, self.close_width, self.close_height, cursor_position)
 
-
 list_of_tabs = []
 selected_tab = None
+last_time = 0
+
+
+'''#DUMMY DATA for testing
+dummy_infograph = None
+dummy_infograph = infograph("Dummy", 0.5, list_of_colors_for_lines[0], "ud")
+list_of_infographs = [dummy_infograph]
+serial_COM_port = None
+biggest_step = dummy_infograph.step
+smallest_step_infograph = dummy_infograph
+minimum_frame_size = 3
+main_graph.size_of_frame = 10 * minimum_frame_size
+list_of_tabs.append(tab(window_of_visualization, 100, 240, 100, 20, "Tab 1",
+                                            True))  ################################### simplificar
+selected_tab = list_of_tabs[0]
+
+##################eixos y
+main_graph.x += len(list_of_infographs) * y_axis_lenght
+main_graph.width -= len(list_of_infographs) * y_axis_lenght
+main_bar.x = main_graph.x
+main_bar.width = main_graph.width'''
+
 
 while running:
 
@@ -564,6 +635,10 @@ while running:
         for i in range(len(list_of_infographs)):
             if input_list[0] == list_of_infographs[i].name:
                 list_of_infographs[i].list_of_values.append(float(input_list[1]))
+
+    elif dummy_infograph and (time.time() - last_time > dummy_infograph.step):
+            last_time = time.time()
+            list_of_infographs[0].list_of_values.append(random.randint(0, 10))
 
     for event in pygame.event.get():
         cursor_position = pygame.mouse.get_pos()
@@ -703,7 +778,7 @@ while running:
         main_graph.initial_smallest_step_position_in_list -= 1
 
     # makes sure that when the size of frame is greater than the number of values, the initial position is set to 0
-    if serial_COM_port and (live_data or (not live_data and len(smallest_step_infograph.list_of_values) <
+    if (serial_COM_port or dummy_infograph) and (live_data or (not live_data and len(smallest_step_infograph.list_of_values) <
                                           main_graph.size_of_frame + main_graph.initial_smallest_step_position_in_list)):
         main_graph.initial_smallest_step_position_in_list = len(
             smallest_step_infograph.list_of_values) - main_graph.size_of_frame
@@ -711,7 +786,7 @@ while running:
             main_graph.initial_smallest_step_position_in_list = 0
 
     # makes sure the position in the list of values is no less than 0
-    if serial_COM_port and main_graph.initial_smallest_step_position_in_list < 0:
+    if (serial_COM_port or dummy_infograph) and main_graph.initial_smallest_step_position_in_list < 0:
         main_graph.initial_smallest_step_position_in_list = 0
 
     # draws graphs in order of selection
