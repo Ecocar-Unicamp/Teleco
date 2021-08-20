@@ -3,6 +3,7 @@ import random
 import serial.tools.list_ports
 import datetime
 import time
+import math
 # import classes
 
 program_version = 1.0
@@ -28,6 +29,7 @@ deixar explicação
 
 '''
 fazer:
+ReadMe
 eixo y: cor linhas, sem 0 exp, 3 alg significativos, condicional para notação cientifica
 desenhar necessário básico antes de conectar; definir padrão para detectar se está conectado
 resizing: https://www.youtube.com/watch?v=edJZOQwrMKw&list=WL&index=5&t=233s&ab_channel=DaFluffyPotato
@@ -603,13 +605,27 @@ selected_tab = None
 #-#-#-#-#-#-#-#-#-#-#-# Dummy Data Generator #-#-#-#-#-#-#-#-#-#-#-#
 #for testing without serial, just uncomment this part
 '''
-last_time = 0
-dummy_infograph = infograph("Dummy", 0.5, list_of_colors_for_lines[0], "ud")
-list_of_infographs = [dummy_infograph]
+last_times = []
+dummy_infograph = infograph("D1", 2.3, list_of_colors_for_lines[0], "d1")
+dummy_infograph2 = infograph("D2", 1.5, list_of_colors_for_lines[1], "d2")
+dummy_infograph3 = infograph("D3", 0.5, list_of_colors_for_lines[2], "d3")
+dummy_infograph4 = infograph("D4", 0.7, list_of_colors_for_lines[3], "d4")
+dummy_infograph5 = infograph("D5", 0.2, list_of_colors_for_lines[4], "d5")
+dummy_infograph6 = infograph("D6", 0.3, list_of_colors_for_lines[5], "d6")
+
+list_of_infographs = [dummy_infograph, dummy_infograph2, dummy_infograph3, dummy_infograph4, dummy_infograph5, dummy_infograph6]
+for i in range(len(list_of_infographs)):
+    last_times.append(0)
 serial_COM_port = None
-biggest_step = dummy_infograph.step
-smallest_step_infograph = dummy_infograph
-minimum_frame_size = 3
+biggest_step = None
+for i in range(len(list_of_infographs)):
+    if not biggest_step or list_of_infographs[i].step > biggest_step:
+        biggest_step = list_of_infographs[i].step
+smallest_step_infograph = None
+for i in range(len(list_of_infographs)):
+    if not biggest_step or list_of_infographs[i].step < biggest_step:
+        smallest_step_infograph = list_of_infographs[i]
+minimum_frame_size = 3 * biggest_step / smallest_step_infograph.step
 main_graph.size_of_frame = 10 * minimum_frame_size
 list_of_tabs.append(tab(window_of_visualization, 100, 240, 100, 20, "Tab 1",True))
 selected_tab = list_of_tabs[0]
@@ -647,9 +663,23 @@ while running:
             if input_list[0] == list_of_infographs[i].name:
                 list_of_infographs[i].list_of_values.append(float(input_list[1]))
 
-    elif dummy_infograph and (time.time() - last_time > dummy_infograph.step):
-            last_time = time.time()
-            list_of_infographs[0].list_of_values.append(random.randint(0, 10))
+    #$%$%$%$%$%$%$%$%# Dummy data #$%$%$%$%$%$%$%$%#
+    elif dummy_infograph:
+        for i in range(len(list_of_infographs)):
+            if (time.time() - last_times[i]) > list_of_infographs[i].step:
+                last_times[i] = time.time()
+                if i == 0:
+                    list_of_infographs[i].list_of_values.append(random.randint(0, 1))
+                if i == 1:
+                    list_of_infographs[i].list_of_values.append(random.randrange(-1000, 1000, 1))
+                if i == 2:
+                    list_of_infographs[i].list_of_values.append(math.cos(random.randrange(-1000, 1000, 1)/300))
+                if i == 3:
+                    list_of_infographs[i].list_of_values.append(math.acos(random.randrange(-1000, 1000, 1)/1000))
+                if i == 4:
+                    list_of_infographs[i].list_of_values.append(2**random.randint(0, 10))
+                if i == 5:
+                    list_of_infographs[i].list_of_values.append(random.randint(1, 10)**(-1))
 
     #-_-_-_-_-_-_-_-_-_-_-# User commands
     for event in pygame.event.get():
