@@ -1,20 +1,23 @@
 import pygame
 import random
 import serial.tools.list_ports
-import datetime  # alternative library: time - time.localtime([5])
+import datetime
 import time
+# import classes
+
+program_version = 1.0
+
+'''
+comentários em inglês servem para explicar o código; em português, fazem um direcionamento de futuras mudanças
+'''
 
 '''
 Marcadores:
 #-#-#-#-#-#-#-#-#-#-#-# TítuloTópico #-#-#-#-#-#-#-#-#-#-#-#
-#-_-_-_-_-_-_-_-_-_-_-# Tópico / Subtópico / SubSubtópico
-#*_*_*_*_*_*# Explicação
+#-_-_-_-_-_-_-_-_-_-_-# Tópico / Subtópico
+# Explicação
+###################### Nota (Ctrl + f + "##" para pesquisar o q falta; ao solucionar, remover)
 #$%$%$%$%$%$%$%$%# Extra #$%$%$%$%$%$%$%$%#
-############ Não Formatado
-'''
-
-'''
-comentários em inglês servem para explicar o código; em português, fazem um direcionamento de futuras mudanças
 '''
 
 '''
@@ -25,51 +28,64 @@ deixar explicação
 
 '''
 fazer:
-CODIGO DUMMY
-*********cor linhas, sem 0 exp, 3 alg significativos, condicional para notação cientifica
-desenhar necessário básico antes de conectar; definnir padrão para detectar se está conectado
+eixo y: cor linhas, sem 0 exp, 3 alg significativos, condicional para notação cientifica
+desenhar necessário básico antes de conectar; definir padrão para detectar se está conectado
 resizing: https://www.youtube.com/watch?v=edJZOQwrMKw&list=WL&index=5&t=233s&ab_channel=DaFluffyPotato
 revisar nomes, comentarios, organização em conjunto
 definir proximas melhorias
-juntar função de salvamento
-transpor classes e funções para archuivos separados
-fazer identificaçã na lista de infographs por indice e nao por nome
+transpor classes e funções para arquivos separados
+fazer identificação na lista de infographs por indice e nao por nome
+passar número e não o nome pelo serial
 except electronic prototyping platform desconectou
+connect DEVE MOSTRAR SE FOI DESCONECTADO: "Disconnected"
+testar desconexão inesperada: serial.serialutil.SerialException: ClearCommError failed (PermissionError(13, 'O dispositivo não reconhece o comando.', None, 22))
 checar sempre se listas vazias - "Identified: PermissionError"
 info tempo na barra
 fazer troca de cores dos botoes na chamada de draw e is over
 função única para desenhar grupamento de entidades, ex: botões
-connect DEVE MOSTRAR SE FOI DESCONECTADO: "Disconnected"
 conferir se todos os selfs precisam ser selfs ou algum outro dado precisa ser self
-conferir se nao generaliza coisa que se baseia na lista de infog recebida - smallest_step_infograph.step
-passar número e não o nome pelo serial
+função generalizada de desenhar eixo x para passos pequenos ou tempos grandes
 '''
-dummy_infograph = None
-pygame.init()  # pode ser movido para outro lugar
+# implementar troca de cor e texto nao diretamente no main: verificar se mais de 2 textos possiveis
+'''def is_over(self, pos):
+    if cursor_is_over(x, y, width, height, cursor_position):
+        self.color = self.secondary_color
+        return True
+    self.color = self.main_color
+    return False'''
 
-pygame.display.set_caption("Telemetry Plotter") #program name
-try:
-    Icon = pygame.image.load("Logo_blurange.png") #program icon image
-    pygame.display.set_icon(Icon)
-except:
-    print("No Logo found")
+
+pygame.init()
+
+#-#-#-#-#-#-#-#-#-#-#-# Program's base interface #-#-#-#-#-#-#-#-#-#-#-#
 
 x_size_of_window = 1400
 y_size_of_window = 650
 color_of_screen = (0, 128, 128)
-color_of_pointer = (0, 255, 0)
-pointer_thickness = 2
+
 window_of_visualization = pygame.display.set_mode((x_size_of_window, y_size_of_window))  # the base display
 window_of_visualization.fill(color_of_screen)
 
-list_of_colors_for_lines = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255), (0, 255, 255)]
+list_of_colors_for_lines = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255),
+                            (0, 255, 255), (255, 127, 127), (127, 255, 127), (127, 127, 255)]
+
 font = pygame.font.Font('freesansbold.ttf', 16)
 minor_font = pygame.font.Font('freesansbold.ttf', 12)
 
-version_text = font.render("Telemetry plotter version: 1.0", False, (0, 0, 0)) #program version info#######################
-version_text_position = (0, y_size_of_window -16)
+pygame.display.set_caption("Telemetry Plotter") # program's name
+try:
+    Icon = pygame.image.load("Logo_blurange.png") # program's icon image
+    pygame.display.set_icon(Icon)
+except FileNotFoundError:
+    print("No image for Logo found")
+
+version_text = font.render("Telemetry Plotter  Version: " + str(program_version), False, (0, 0, 0)) #program version info
+version_text_position = (0, y_size_of_window - 16)
+window_of_visualization.blit(version_text, version_text_position)
 
 
+#################################################################### implementar essa parte
+#-#-#-#-#-#-#-#-#-#-#-# Saving the data #-#-#-#-#-#-#-#-#-#-#-#
 #Function creates a file to be used to save the data
 def CreateArch(list_of_infographs):
     #Creates the file name with current the date and time
@@ -92,7 +108,8 @@ def CreateArch(list_of_infographs):
     except IOError:
         print("ERROR: save file with this name already exists")
 
-def Save_data(arch_name, list_of_infographs, time): ############salvamento em tempo real
+############################################################## salvamento em tempo real; close; lista de linhas por infog
+def Save_data(arch_name, list_of_infographs, time):
     #opens file
     arch = open(arch_name, "a")
 
@@ -107,15 +124,15 @@ def Save_data(arch_name, list_of_infographs, time): ############salvamento em te
     arch.close()
 
 
-def cursor_is_over(x, y, width, height,
-                   cursor_position):  # Determines if the mouse cursor position in tuple (x,y) is over
+#-#-#-#-#-#-#-#-#-#-#-# Frequently used functions #-#-#-#-#-#-#-#-#-#-#-#
+# Determines if the mouse cursor position in tuple (x,y) is over
+def cursor_is_over(x, y, width, height, cursor_position):
     if cursor_position[0] > x and cursor_position[0] < x + width:
         if cursor_position[1] > y and cursor_position[1] < y + height:
             return True
     return False
 
-
-# converts a position old_value within the interval [old_a,old_b] to [new_a,new_b]
+# Converts a position old_value within the interval [old_a,old_b] to [new_a,new_b]
 def proportional_conversion(old_value, old_range, new_range):
     if old_range == 0 or new_range == 0:
         return new_range / 2
@@ -123,6 +140,8 @@ def proportional_conversion(old_value, old_range, new_range):
         return (old_value * new_range / old_range)
 
 
+#-#-#-#-#-#-#-#-#-#-#-# Button #-#-#-#-#-#-#-#-#-#-#-#
+#-_-_-_-_-_-_-_-_-_-_-# Class
 # A button for clicking purposes
 class button():
     def __init__(self, window, color, x, y, width, height, text=''):
@@ -134,7 +153,8 @@ class button():
         self.height = height
         self.text = text
 
-    def draw(self, outline=True):  # Draws the Button
+    # Draws the Button
+    def draw(self, outline=True):
         if outline:
             pygame.draw.rect(self.window, (0, 0, 0), (self.x - 2, self.y - 2, self.width + 4, self.height + 4), 0)
 
@@ -145,11 +165,11 @@ class button():
             (self.window).blit(text, (
                 self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
 
-    def cursor_is_over(self,
-                       cursor_position):  # Determines if the mouse cursor position in tuple (x,y) is over the button
+    # Determines if the mouse cursor position in tuple (x,y) is over the button
+    def cursor_is_over(self, cursor_position):
         return cursor_is_over(self.x, self.y, self.width, self.height, cursor_position)
 
-
+#-_-_-_-_-_-_-_-_-_-_-# Connection Button variables
 # button for connecting with the electronic prototyping platform
 message_connection_button_0 = "Connect"
 message_connection_button_1 = "Connecting"
@@ -157,19 +177,21 @@ message_connection_button_2 = "Connected"
 message_connection_button_30 = "Verify Link"
 message_connection_button_31 = "Error"
 connection_button_color = (255, 0, 0)
-connection_button = button(window_of_visualization, connection_button_color, 100, 100, 100, 20,
-                           message_connection_button_0)
+connection_button = button(window_of_visualization, connection_button_color, 100, 100, 100, 20, message_connection_button_0)
 
+#-_-_-_-_-_-_-_-_-_-_-# Live Data + Freezing Button variables
 # button for freezing or defreezing the graph
 message_freezing_button_0 = "Freeze"
 message_freezing_button_1 = "Live Data"
 freezing_button_color = (0, 0, 255)
 freezing_button = button(window_of_visualization, freezing_button_color, 100, 140, 100, 20, message_freezing_button_0)
 
+#-_-_-_-_-_-_-_-_-_-_-# New Tab Button variables
 new_tab_button_color = (100, 100, 255)
 new_tab_button = button(window_of_visualization, new_tab_button_color, 100, 200, 100, 20, "New Tab")
 
 
+#-#-#-#-#-#-#-#-#-#-#-# Infograph Class #-#-#-#-#-#-#-#-#-#-#-#
 # Information holder for individual graphs
 class infograph():
     def __init__(self, name, step, color, unit):
@@ -177,19 +199,20 @@ class infograph():
         self.step = step
         self.unit = unit
         self.color = color
-
         self.list_of_values = []
 
-
 list_of_infographs = []
-serial_COM_port = None
 
+
+#-#-#-#-#-#-#-#-#-#-#-# Connection #-#-#-#-#-#-#-#-#-#-#-#
+serial_COM_port = None
 biggest_step = None
 smallest_step_infograph = None
-
 minimum_frame_size = None
 
+dummy_infograph = None # used for testing without Serial
 
+################################################# substituir variaveis globais
 # function for connecting with the electronic prototyping platform
 def connect():
     global list_of_infographs
@@ -262,6 +285,8 @@ def connect():
             serial_COM_port = None
 
 
+#-#-#-#-#-#-#-#-#-#-#-# Graph #-#-#-#-#-#-#-#-#-#-#-#
+# allows intuitive visualization of data
 graph_info_color = (255, 255, 255)
 graph_background_color = (0, 0, 0)
 graph_second_background_color = (50, 50, 50)
@@ -282,8 +307,7 @@ main_graph_height = 400
 
 y_axis_lenght = 50
 
-
-# graph for visualization
+#-_-_-_-_-_-_-_-_-_-_-# Class
 class graph():
     def __init__(self, window_of_visualization, x, y, width, height):
         self.window_of_visualization = window_of_visualization
@@ -303,19 +327,20 @@ class graph():
                        cursor_position):  # Determines if the mouse cursor position in tuple (x,y) is over the button
         return cursor_is_over(self.x, self.y, self.width, self.height, cursor_position)
 
-    # draws graph
+    # draws the graph
     def draw(self):
         pygame.draw.rect(self.window_of_visualization, graph_second_background_color,(main_graph_x - 4, main_graph_y - 4, main_graph_width + 8, main_graph_height + 88))
         pygame.draw.rect(self.window_of_visualization, graph_background_color, (self.x, self.y, self.width, self.height))
         pygame.draw.rect(self.window_of_visualization, axis_color, (self.x, self.y + self.height, self.width, 40))
 
+        #-_-_-_-_-_-_-_-_-_-_-# Axis base draw
         if serial_COM_port or dummy_infograph:
             self.current_list_of_coordinates = []
             self.current_list_of_values_initial_and_final_positions = []
             smallest_step_x_graphic_step = self.width/(self.size_of_frame - 1)
 
-            #X AXIS
-            if number_of_x_marks: #graphic step pode ser calculado so no inicio; acho q esse if n precisa
+            #-_-_-_-_-_-_-_-_-_-_-# Axis base draw / X axis
+            if number_of_x_marks: ###########graphic step pode ser calculado so no inicio; acho q esse if n precisa
                 time_step = None
                 if number_of_x_marks == 1:
                     time_step = (self.size_of_frame - 1) * smallest_step_infograph.step / (number_of_x_marks)
@@ -336,12 +361,12 @@ class graph():
                     else:
                         (self.window_of_visualization).blit(text, (self.x + position * graphic_step - text.get_width()/2, self.y + self.height))
 
-            #Y AXIS
+            #-_-_-_-_-_-_-_-_-_-_-# Axis base draw / Y axis part 1
             pygame.draw.rect(self.window_of_visualization, axis_color, (main_graph_x, self.y, len(selected_tab.selected_names) * y_axis_lenght, self.height))
             for i in range(len(selected_tab.selected_names)): ###############pode estilizar as cores
                 pygame.draw.line(window_of_visualization,(255,255,255),(main_graph_x + (i + 1/2) * y_axis_lenght, self.y),
                                  (main_graph_x + (i + 1/2) * y_axis_lenght, self.y + self.height), width=1)
-                text = font.render(selected_tab.selected_names[i][:3], True, (0, 0, 0))
+                text = font.render(selected_tab.selected_names[i][:3], True, (0, 0, 0)) ########### inclinar texto?
                 (self.window_of_visualization).blit(text, (main_graph_x + (i + 1/2) * y_axis_lenght - text.get_width()/2, self.y + self.height))
 
             graphic_step = self.height / (number_of_y_marks - 1)
@@ -350,16 +375,18 @@ class graph():
                                  (main_graph_x, self.y + position * graphic_step),
                                  (self.x + self.width, self.y + position * graphic_step), width=1)
 
-
-
+        #-_-_-_-_-_-_-_-_-_-_-# Information Presentation
         if serial_COM_port or dummy_infograph:
             self.current_list_of_coordinates = []
             self.current_list_of_values_initial_and_final_positions = []
             smallest_step_x_graphic_step = self.width / (self.size_of_frame - 1)
 
+            # defines what data will be worked with
             for i in range(len(self.list_of_infographs)):
                 self.current_list_of_coordinates.append([])
                 if len(self.list_of_infographs[i].list_of_values) > 1:
+
+                    #-_-_-_-_-_-_-_-_-_-_-# Information Presentation / List Intervals
                     relative_step_proportion = smallest_step_infograph.step / self.list_of_infographs[i].step
                     list_of_selected_values = []
                     initial_position_in_list = None
@@ -384,7 +411,7 @@ class graph():
                     lowest_value = min(list_of_selected_values)
                     highest_value = max(list_of_selected_values)
 
-                    ####### Y AXIS ############
+                    #-_-_-_-_-_-_-_-_-_-_-# Information Presentation / Y axis part 2
                     value_step = (highest_value - lowest_value) / (number_of_y_marks - 1)
                     graphic_step = self.height / (number_of_y_marks - 1)
                     for position in range(number_of_y_marks):
@@ -393,7 +420,6 @@ class graph():
                             value = "{:.1e}".format(value)
                         text = minor_font.render(str(value), True, (0, 0, 0))
                         ########## essa parte precisa ser revisada para incluir notação científica caso trabalhemos com valores pequenos
-                        #scientific_notation = "{:.1e}".format(lowest_value + position * value_step)
                         if position == 0:
                             (self.window_of_visualization).blit(text,(
                                 main_graph_x + (1/2 + i) * y_axis_lenght - text.get_width()/2,
@@ -407,8 +433,7 @@ class graph():
                                 main_graph_x + (1 / 2 + i) * y_axis_lenght - text.get_width() / 2,
                                 self.y + self.height - position * graphic_step - text.get_height() / 2))
 
-
-
+                    #-_-_-_-_-_-_-_-_-_-_-# Information Presentation / Visual part
                     graphic_step = smallest_step_x_graphic_step / relative_step_proportion
                     initial_x_position = initial_position_in_list * graphic_step - self.initial_smallest_step_position_in_list * smallest_step_x_graphic_step
 
@@ -422,24 +447,25 @@ class graph():
                     pygame.draw.lines(window_of_visualization, self.list_of_infographs[i].color, False,
                                       self.current_list_of_coordinates[i], line_width)
 
-    '''incompleto; encontrar coordinate com chute por proportional conversion, incrementando index até (x,y)'''
-
+    ################################################################### substituir por função completa nuno
+    # -_-_-_-_-_-_-_-_-_-_-# Additional Information
     def info(self, cursor_position):  # conditional if cursor_is_over graph
         pygame.draw.line(self.window_of_visualization, graph_info_color, (cursor_position[0], self.y),
                          (cursor_position[0], self.y + self.height), info_line_width)
 
-        '''for i in range(len(self.current_list_of_coordinates)):
+        for i in range(len(self.current_list_of_coordinates)):
             considered_coordinates = self.current_list_of_coordinates[i]
-            index = 0'''
+            index = 0
         coordinate = cursor_position
         pygame.draw.circle(self.window_of_visualization, info_dot_color, coordinate, info_dot_radius)
 
 main_graph = graph(window_of_visualization, main_graph_x, main_graph_y, main_graph_width, main_graph_height)
 
-cursor_position = None
-live_data = True
-running = True
 
+#-#-#-#-#-#-#-#-#-#-#-# Bar #-#-#-#-#-#-#-#-#-#-#-#
+
+color_of_pointer = (0, 255, 0)
+pointer_thickness = 2
 
 class bar:
     def __init__(self, window, color, x, y, width, height):
@@ -460,12 +486,14 @@ class bar:
     def cursor_is_over(self, cursor_position):  # Determines if the mouse cursor position in tuple (x,y) is over the bar
         return cursor_is_over(self.x, self.y, self.width, self.height, cursor_position)
 
-
 main_bar = bar(window_of_visualization, (141, 141, 141), main_graph.x - pointer_thickness,
           main_graph.y + main_graph.height + 50, main_graph.width + 1.5 * pointer_thickness, 30)
 pointer_pos = main_graph.x + main_graph.width - pointer_thickness
-checkbox_main_color = (53, 87, 28)
 
+
+#-#-#-#-#-#-#-#-#-#-#-# Checkbox #-#-#-#-#-#-#-#-#-#-#-#
+
+checkbox_main_color = (53, 87, 28)
 
 class checkbox:
     def __init__(self, window, name, x, y, size=20, state=False):
@@ -488,8 +516,7 @@ class checkbox:
         (self.window).blit(text, (self.x + 40, self.y + (self.size / 2 - text.get_height() / 2)))
 
         if self.state:
-            font2 = pygame.font.SysFont('freesansbold.ttf',
-                                        int(1.5 * self.size))  ################### verificar se parametrizavel
+            font2 = pygame.font.SysFont('freesansbold.ttf', int(1.5 * self.size))
             text = font2.render("X", True, (0, 0, 0))
             (self.window).blit(text, (
                 self.x + (self.size / 2 - text.get_width() / 2), self.y + (self.size / 2 - text.get_height() / 2)))
@@ -497,23 +524,12 @@ class checkbox:
     def cursor_is_over(self, cursor_position):
         return cursor_is_over(self.x, self.y, self.size, self.size, cursor_position)
 
-    #################################################### verificar como implementar; permite a troca da cor nao diretamente no main
-    def is_over(self, pos):
-        if self.x < pos[0] < self.x + self.size:
-            if self.y < pos[1] < self.y + self.size:
-                self.color = self.secondary_color
-                return True
-        self.color = self.main_color
-        return False
-    ##########################
 
+#-#-#-#-#-#-#-#-#-#-#-# Tab #-#-#-#-#-#-#-#-#-#-#-#
 
 tab_main_color = (0, 255, 0)
 tab_secondary_color = (0, 150, 0)
 tab_close_color = (255, 0, 0)
-
-'''#se x pressionado: list_of_tabs.remove(tal) - checar se tem ao menos uma, garantir que tem alguma selecionada'''
-
 
 # Class for the tabs of diferent infographs. The class holds an index that identifies the tab, a list of the infographs
 # avilable and a list of checkboxes used to selecte wich infographs will be shown. The class has a function to create
@@ -542,15 +558,15 @@ class tab:
 
         for i in range(len(self.selected_names)):
             self.checkboxes.append(checkbox(window_of_visualization, self.selected_names[i],
-                                            1200, 40 * i + 100, 20, True))  #######################################
+                                            1200, 40 * i + 100, 20, True))  ######## trocar i por checks
 
     def draw(self, outline=True):  # Draws the Button
-        if outline:  # dá pra ser melhor conceituado
+        if outline:  ############### dá pra ser melhor conceituado
             pygame.draw.rect(self.window, (0, 0, 0), (self.x - 2, self.y - 2, self.width + 4, self.height + 4), 0)
             pygame.draw.rect(self.window, (0, 0, 0),
                              (self.close_x - 2, self.close_y - 2, self.close_width + 4, self.close_height + 4), 0)
 
-        if self.selected:  # isso dá pra ser enxugado e se basear só em selected_tab
+        if self.selected:  ##################### isso dá pra ser enxugado e se basear só em selected_tab
             self.color = tab_secondary_color
         else:
             self.color = tab_main_color
@@ -558,8 +574,7 @@ class tab:
         pygame.draw.rect(self.window, self.color, (self.x, self.y, self.width, self.height), 0)
         pygame.draw.rect(self.window, self.close_color,
                          (self.close_x, self.close_y, self.close_width, self.close_height), 0)
-        font2 = pygame.font.SysFont('freesansbold.ttf',
-                                    int(1.5 * self.close_height))  ################### verificar se parametrizavel
+        font2 = pygame.font.SysFont('freesansbold.ttf', int(1.5 * self.close_height))
         text = font2.render("X", True, (0, 0, 0))
         (self.window).blit(text, (self.close_x + (self.close_width / 2 - text.get_width() / 2),
                                   self.y + (self.close_height / 2 - text.get_height() / 2)))
@@ -570,21 +585,9 @@ class tab:
                 self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
 
         if self.selected:
-            pygame.draw.rect(self.window, (100, 100, 100), (1150, 50, 200, 400), 0)  # deixar em f do tamanho abaixo
+            pygame.draw.rect(self.window, (100, 100, 100), (1150, 50, 200, 400), 0)  ######## deixar em f do tamanho abaixo
             for c in range(len(self.checkboxes)):
                 self.checkboxes[c].draw()
-
-    '''verificar necessidade'''
-    '''def draw(self):
-        if self.selected:
-            for i in range(len(self.list_of_infographs)):
-                self.checkboxes[i].draw(window, (0, 0, 0))
-                if self.checkboxes[i].state:
-                    if not self.list_of_infographs[i] in self.selected_infographs:
-                        self.selected_infographs.append(self.list_of_infographs[i])
-                elif not self.checkboxes[i].state:
-                    if self.list_of_infographs[i] in self.selected_infographs:
-                        self.selected_infographs.remove(self.list_of_infographs[i])'''
 
     def cursor_is_over(self,
                        cursor_position):  # Determines if the mouse cursor position in tuple (x,y) is over the button
@@ -595,11 +598,12 @@ class tab:
 
 list_of_tabs = []
 selected_tab = None
-last_time = 0
 
 
-#DUMMY DATA for testing without serial - just uncomment this part
+#-#-#-#-#-#-#-#-#-#-#-# Dummy Data Generator #-#-#-#-#-#-#-#-#-#-#-#
+#for testing without serial, just uncomment this part
 '''
+last_time = 0
 dummy_infograph = infograph("Dummy", 0.5, list_of_colors_for_lines[0], "ud")
 list_of_infographs = [dummy_infograph]
 serial_COM_port = None
@@ -616,19 +620,25 @@ main_bar.x = main_graph.x
 main_bar.width = main_graph.width
 '''
 
-while running:
 
+#-#-#-#-#-#-#-#-#-#-#-# Program's Loop #-#-#-#-#-#-#-#-#-#-#-#
+
+cursor_position = None
+live_data = True
+running = True
+
+while running:
+    #-_-_-_-_-_-_-_-_-_-_-# User interactives
     connection_button.draw(window_of_visualization)
     freezing_button.draw(window_of_visualization)
     new_tab_button.draw(window_of_visualization)
-    pygame.draw.rect(window_of_visualization, (100, 100, 100), (90, 225, 150, 500), 0) #precisa esconder guias apagadas
+    pygame.draw.rect(window_of_visualization, (100, 100, 100), (90, 225, 150, 400), 0) #precisa esconder guias apagadas
     for t in list_of_tabs:
         t.draw(window_of_visualization)
 
-    # if serial has received information
-    '''testar desconexão inesperada: serial.serialutil.SerialException: 
-    ClearCommError failed (PermissionError(13, 'O dispositivo não reconhece o comando.', None, 22))'''
-    if serial_COM_port and serial_COM_port.in_waiting:
+    #-_-_-_-_-_-_-_-_-_-_-# Data acquirement
+    ###################################################################### desconexão inesperada
+    if serial_COM_port and serial_COM_port.in_waiting: # if serial has received information
         input = serial_COM_port.readline().decode('utf-8').strip()
         print(input)
         input_list = input.split(";")
@@ -641,6 +651,7 @@ while running:
             last_time = time.time()
             list_of_infographs[0].list_of_values.append(random.randint(0, 10))
 
+    #-_-_-_-_-_-_-_-_-_-_-# User commands
     for event in pygame.event.get():
         cursor_position = pygame.mouse.get_pos()
         button_pressed = pygame.mouse.get_pressed(3)
@@ -651,13 +662,14 @@ while running:
 
         if event.type == pygame.MOUSEWHEEL:
             if main_graph.size_of_frame:
-                main_graph.size_of_frame += (-1) * event.y * (
-                        1 + int(main_graph.size_of_frame / 10))  # proportional growth
+                # proportional growth
+                main_graph.size_of_frame += (-1) * event.y * (1 + int(main_graph.size_of_frame / 10))
                 if main_graph.size_of_frame < minimum_frame_size:
                     main_graph.size_of_frame = minimum_frame_size
 
         if event.type == pygame.MOUSEBUTTONDOWN and button_pressed == (1, 0, 0):
 
+            #-_-_-_-_-_-_-_-_-_-_-# User commands / Connect
             # connects with electronic prototyping platform
             if connection_button.cursor_is_over(cursor_position) and not serial_COM_port:
                 last_text = connection_button.text
@@ -674,12 +686,11 @@ while running:
                                             True))  ################################### simplificar
                     selected_tab = list_of_tabs[0]
 
-                    ##################eixos y
+                    # configurates the y axis
                     main_graph.x += len(list_of_infographs) * y_axis_lenght
                     main_graph.width -= len(list_of_infographs) * y_axis_lenght
                     main_bar.x = main_graph.x
                     main_bar.width = main_graph.width
-
                 else:
                     connection_button.color = (255, 0, 0)
                     if last_text != message_connection_button_30:
@@ -687,6 +698,7 @@ while running:
                     else:  # for visual confirmation
                         connection_button.text = message_connection_button_31
 
+            #-_-_-_-_-_-_-_-_-_-_-# User commands / Freezing button
             # freeze or defreeze the graph
             if freezing_button.cursor_is_over(cursor_position):
                 if freezing_button.text == message_freezing_button_0:
@@ -696,6 +708,7 @@ while running:
                     freezing_button.text = message_freezing_button_0
                     live_data = True
 
+            #-_-_-_-_-_-_-_-_-_-_-# User commands / Tab management
             # creates a new tab
             if new_tab_button.cursor_is_over(cursor_position) and len(list_of_tabs):
                 list_of_tabs.append(tab(window_of_visualization, 100, list_of_tabs[-1].y + 40, 100, 20,
@@ -725,6 +738,7 @@ while running:
                         list_of_tabs[t + j].close_y = list_of_tabs[t + j].close_y - 40
                     break
 
+            #-_-_-_-_-_-_-_-_-_-_-# User commands / Checkbox Management
             # checks if a checkbox is selected or deselected
             if selected_tab:
                 for c in range(len(selected_tab.checkboxes)):
@@ -741,6 +755,7 @@ while running:
                         main_bar.width = main_graph.width
                         selected_tab.checkboxes[c].state = not selected_tab.checkboxes[c].state
 
+            #-_-_-_-_-_-_-_-_-_-_-# User commands / Bar management
             # checks if user clicks the bar #################essa parte pode ser embutida na própria classe
             if smallest_step_infograph != None:
                 if main_bar.cursor_is_over(cursor_position):
@@ -756,13 +771,12 @@ while running:
                     freezing_button.text = message_freezing_button_1
                     live_data = False
 
-                ##############################
-
+        #-_-_-_-_-_-_-_-_-_-_-# User commands / Displacement
         # displaces the graph
         if event.type == pygame.KEYDOWN:
             live_data = False
             freezing_button.text = message_freezing_button_1
-            if event.key == pygame.K_LEFT:  # pode passar
+            if event.key == pygame.K_LEFT:
                 main_graph.initial_smallest_step_position_in_list -= 1
             if event.key == pygame.K_RIGHT:
                 main_graph.initial_smallest_step_position_in_list += 1
@@ -778,6 +792,7 @@ while running:
         freezing_button.text = message_freezing_button_1
         main_graph.initial_smallest_step_position_in_list -= 1
 
+    #-_-_-_-_-_-_-_-_-_-_-# Graph curves bug fixes
     # makes sure that when the size of frame is greater than the number of values, the initial position is set to 0
     if (serial_COM_port or dummy_infograph) and (live_data or (not live_data and len(smallest_step_infograph.list_of_values) <
                                           main_graph.size_of_frame + main_graph.initial_smallest_step_position_in_list)):
@@ -790,6 +805,7 @@ while running:
     if (serial_COM_port or dummy_infograph) and main_graph.initial_smallest_step_position_in_list < 0:
         main_graph.initial_smallest_step_position_in_list = 0
 
+    #-_-_-_-_-_-_-_-_-_-_-# Drawing interface
     # draws graphs in order of selection
     main_graph.list_of_infographs = []
     if selected_tab:  ######################################### simplificar, pode ser baseado no indice e nao no nome
