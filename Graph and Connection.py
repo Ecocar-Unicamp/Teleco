@@ -463,7 +463,7 @@ class graph():
                     closest_points.append(0)
                     point_distance = 1000000000
                     aux = 0
-                    for j in range(len(self.current_list_of_coordinates[i])):
+                    for j in range(len(self.current_list_of_coordinates[i])): #finds closest points to the cursor
                         aux = abs(cursor_position[0] - self.current_list_of_coordinates[i][j][0])
                         if aux < point_distance:
                             point_distance = aux
@@ -472,7 +472,7 @@ class graph():
                 pygame.draw.rect(self.window_of_visualization, (255, 255, 255), (
                     10, self.height - 10 - (20 * len(self.current_list_of_coordinates)), 50, 20 * len(self.current_list_of_coordinates)))
 
-                for i in range(len(closest_points)):
+                for i in range(len(closest_points)):  #gets the information for each point and prints it
                     info1 = font3.render(str(self.list_of_infographs[i].name) + ":", True, (0, 0, 0))
                     info2 = font3.render(str(self.list_of_infographs[i].list_of_values[closest_points[i] +
                                                                                        self.current_list_of_values_initial_and_final_positions[
