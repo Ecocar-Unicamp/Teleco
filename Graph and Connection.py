@@ -467,7 +467,7 @@ class graph():
                         aux = abs(cursor_position[0] - self.current_list_of_coordinates[i][j][0])
                         if aux < point_distance:
                             point_distance = aux
-                            closest_points[i] = j
+                            closest_points[i] = (j, self.current_list_of_coordinates[i][j], self.list_of_infographs[i].color)
 
                 pygame.draw.rect(self.window_of_visualization, (255, 255, 255), (
                     10, self.height - 10 - (20 * len(self.current_list_of_coordinates)), 50, 20 * len(self.current_list_of_coordinates)))
@@ -479,6 +479,7 @@ class graph():
                                                                                            i][0]]), True, (0, 0, 0))
                     self.window_of_visualization.blit(info1, (10, self.height - 30 - (20 * i)))
                     self.window_of_visualization.blit(info2, (10, self.height - 20 - (20 * i)))
+                    pygame.draw.circle(self.window_of_visualization, closest_points[i][2], closest_points[i][1], info_dot_radius)
 
         pygame.draw.line(self.window_of_visualization, graph_info_color, (cursor_position[0], self.y),
                          (cursor_position[0], self.y + self.height), info_line_width)
