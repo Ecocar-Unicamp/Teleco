@@ -31,7 +31,7 @@ with the right and left arrow keys or with the bar under the graph. By pressing 
 from live to static data. Passing the mouse cursor in the graph area will show the value of the closest points
 that will be highlighted by dots on the graph line.
 
-<img src=> (add gif)
+<img src="doc/navigating the graph.gif">
 
 ### Selecting infographs
 
