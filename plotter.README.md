@@ -39,7 +39,7 @@ The user can select what information to display clicking on the checkboxes on th
 This selection will be saved in the current tab and new tabs can be opend with the "new tab" button. To change the
 tab being shown just click the tab wich you want.
 
-<img src=> (add gif)
+<img src="doc/Telemetry-Plotter-2021-08-25-20-31-32.gif">
 
 ## Code info
 
