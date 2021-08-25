@@ -18,11 +18,11 @@ The latest version finnished is: V.1.0
 To connect to the telemetry sistem click in the "connect" button. This will start the connecting process
 indicated in the button.
 
-<img src=> (add img)
+<img src="doc/connect button.png">
 
 When a connection is stablished the button will the button text will change to "connected".
 
-<img src=> (add img)
+<img src="doc/connected button1.png">
 
 ### Navagating the graph
 
