@@ -474,7 +474,7 @@ class graph():
 
                 for i in range(len(closest_points)):  #gets the information for each point and prints it
                     info1 = font3.render(str(self.list_of_infographs[i].name) + ":", True, (0, 0, 0))
-                    info2 = font3.render(str(self.list_of_infographs[i].list_of_values[closest_points[i] +
+                    info2 = font3.render(str(self.list_of_infographs[i].list_of_values[closest_points[i][0] +
                                                                                        self.current_list_of_values_initial_and_final_positions[
                                                                                            i][0]]), True, (0, 0, 0))
                     self.window_of_visualization.blit(info1, (10, self.height - 30 - (20 * i)))
