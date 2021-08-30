@@ -334,6 +334,7 @@ class graph():
         pygame.draw.rect(self.window_of_visualization, graph_second_background_color,(main_graph_x - 4, main_graph_y - 4, main_graph_width + 8, main_graph_height + 88))
         pygame.draw.rect(self.window_of_visualization, graph_background_color, (self.x, self.y, self.width, self.height))
         pygame.draw.rect(self.window_of_visualization, axis_color, (self.x, self.y + self.height, self.width, 40))
+        pygame.draw.rect(self.window_of_visualization, color_of_screen, (10, self.height - 130, 60, 20 * len(self.current_list_of_coordinates)))
 
         #-_-_-_-_-_-_-_-_-_-_-# Axis base draw
         if serial_COM_port or dummy_infograph:
@@ -470,15 +471,14 @@ class graph():
                             closest_points[i] = (j, self.current_list_of_coordinates[i][j], self.list_of_infographs[i].color)
 
                 pygame.draw.rect(self.window_of_visualization, (255, 255, 255), (
-                    10, self.height - 10 - (20 * len(self.current_list_of_coordinates)), 50, 20 * len(self.current_list_of_coordinates)))
+                    10, self.height - 130, 60, 20 * len(self.current_list_of_coordinates)))
 
                 for i in range(len(closest_points)):  #gets the information for each point and prints it
                     info1 = font3.render(str(self.list_of_infographs[i].name) + ":", True, (0, 0, 0))
-                    info2 = font3.render(str(self.list_of_infographs[i].list_of_values[closest_points[i][0] +
-                                                                                       self.current_list_of_values_initial_and_final_positions[
-                                                                                           i][0]]), True, (0, 0, 0))
-                    self.window_of_visualization.blit(info1, (10, self.height - 30 - (20 * i)))
-                    self.window_of_visualization.blit(info2, (10, self.height - 20 - (20 * i)))
+                    info2 = font3.render(str(format(float(self.list_of_infographs[i].list_of_values[closest_points[i][0] 
+                            + self.current_list_of_values_initial_and_final_positions[i][0]]), '.2f')), True, (0, 0, 0))
+                    self.window_of_visualization.blit(info1, (10, self.height - 130 + (20 * i)))
+                    self.window_of_visualization.blit(info2, (10, self.height - 120 + (20 * i)))
                     pygame.draw.circle(self.window_of_visualization, closest_points[i][2], closest_points[i][1], info_dot_radius)
 
         pygame.draw.line(self.window_of_visualization, graph_info_color, (cursor_position[0], self.y),
