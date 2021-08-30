@@ -451,7 +451,7 @@ class graph():
 
     ################################################################### substituir por função completa nuno
     # -_-_-_-_-_-_-_-_-_-_-# Additional Information
-     def info(self, cursor_position):  # conditional if cursor_is_over graph
+    def info(self, cursor_position):  # conditional if cursor_is_over graph
         point_distance = 1000000000
         aux = 0
         font3 = pygame.font.SysFont('freesansbold.ttf', int(15))
@@ -513,7 +513,26 @@ class bar:
     def pointer(self, color, position_x, position_y, thickness):
         pygame.draw.rect(self.window, color,
                          (position_x - thickness, position_y + 23 - thickness, 5, self.height - thickness))
-
+    def update_pointer(self):
+        if smallest_step_infograph != None:
+            pointer_pos = proportional_conversion(main_graph.initial_smallest_step_position_in_list,
+                                                  len(
+                                                      smallest_step_infograph.list_of_values) - main_graph.size_of_frame,
+                                                  main_graph.width - pointer_thickness)
+            self.pointer(color_of_pointer, pointer_pos + main_graph.x, main_graph.y + main_graph.height + 30,
+                             pointer_thickness)
+    '''def move_pointer(self, graph, infograph, freeze_button, live):
+        graph.initial_smallest_step_position_in_list = int(
+            proportional_conversion(cursor_position[0] - graph.x,
+                                    graph.width,
+                                    len(infograph.list_of_values) - graph.size_of_frame))  # updates values shown in graph based on click location
+        if graph.size_of_frame < len(infograph.list_of_values):
+            pointer_pos = proportional_conversion(graph.initial_smallest_step_position_in_list,
+                                                  len(infograph.list_of_values) - graph.size_of_frame,
+                                                  graph.width)  # updates pointer position based on click location
+        # freezes shown data
+        freeze_button.text = message_freezing_button_1
+        live = False'''
     def cursor_is_over(self, cursor_position):  # Determines if the mouse cursor position in tuple (x,y) is over the bar
         return cursor_is_over(self.x, self.y, self.width, self.height, cursor_position)
 
@@ -641,7 +660,6 @@ dummy_infograph3 = infograph("D3", 0.5, list_of_colors_for_lines[2], "d3")
 dummy_infograph4 = infograph("D4", 0.7, list_of_colors_for_lines[3], "d4")
 dummy_infograph5 = infograph("D5", 0.2, list_of_colors_for_lines[4], "d5")
 dummy_infograph6 = infograph("D6", 0.3, list_of_colors_for_lines[5], "d6")
-
 list_of_infographs = [dummy_infograph, dummy_infograph2, dummy_infograph3, dummy_infograph4, dummy_infograph5, dummy_infograph6]
 for i in range(len(list_of_infographs)):
     last_times.append(0)
@@ -878,11 +896,7 @@ while running:
     if main_graph.cursor_is_over(cursor_position):
         main_graph.info(cursor_position)
 
-    # updates pointer position while more values are taken into account ##############essa parte pode ser embutida na propria classe
-    if smallest_step_infograph != None:
-        pointer_pos = proportional_conversion(main_graph.initial_smallest_step_position_in_list,
-                                              len(smallest_step_infograph.list_of_values) - main_graph.size_of_frame,
-                                              main_graph.width - pointer_thickness)
-        main_bar.pointer(color_of_pointer, pointer_pos + main_graph.x, main_graph.y + main_graph.height + 30, pointer_thickness)
+    # updates pointer position while more values are taken into account
+    main_bar.update_pointer()
 
     pygame.display.update()
