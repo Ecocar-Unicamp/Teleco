@@ -6,7 +6,7 @@ import time
 import math
 # import classes
 
-program_version = 1.0
+program_version = "Alpha" #1.0
 
 '''
 comentários em inglês servem para explicar o código; em português, fazem um direcionamento de futuras mudanças
@@ -19,6 +19,16 @@ Marcadores:
 # Explicação
 ###################### Nota (Ctrl + f + "##" para pesquisar o q falta; ao solucionar, remover)
 #$%$%$%$%$%$%$%$%# Extra #$%$%$%$%$%$%$%$%#
+'''
+
+'''
+#$%$%$%$%$%$%$%$%# Criação de executável com PyInstaller #$%$%$%$%$%$%$%$%#
+ícone precisa estar formatado: https://www.icoconverter.com/
+Abrir cmd e digitar:
+cd /diretorio/do/arquivo
+pyinstaller programa.py --onefile --noconsole --icon=/diretorio/icone.ico
+encontar .exe na pasta dist, agregar dependencias em uma pasta e compactar para o envio
+criar atalho
 '''
 
 '''
@@ -71,8 +81,9 @@ window_of_visualization.fill(color_of_screen)
 list_of_colors_for_lines = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255),
                             (0, 255, 255), (255, 127, 127), (127, 255, 127), (127, 127, 255)]
 
-font = pygame.font.Font('freesansbold.ttf', 16)
-minor_font = pygame.font.Font('freesansbold.ttf', 12)
+text_font = "Arial"
+font = pygame.font.SysFont(text_font, 16)
+minor_font = pygame.font.SysFont(text_font, 12)
 
 pygame.display.set_caption("Telemetry Plotter") # program's name
 try:
@@ -254,6 +265,7 @@ def connect():
                     biggest_step = None
                     smallest_step_infograph = None
                     minimum_frame_size = None
+                    dummy_infograph = None
                     number = 0
                     timing = time.time()
                     while (1):
@@ -334,7 +346,7 @@ class graph():
         pygame.draw.rect(self.window_of_visualization, graph_second_background_color,(main_graph_x - 4, main_graph_y - 4, main_graph_width + 8, main_graph_height + 88))
         pygame.draw.rect(self.window_of_visualization, graph_background_color, (self.x, self.y, self.width, self.height))
         pygame.draw.rect(self.window_of_visualization, axis_color, (self.x, self.y + self.height, self.width, 40))
-        pygame.draw.rect(self.window_of_visualization, color_of_screen, (10, self.height - 130, 60, 20 * len(self.current_list_of_coordinates)))
+        pygame.draw.rect(self.window_of_visualization, color_of_screen, (10, self.height - 130, 60, 2 +20 * len(self.current_list_of_coordinates))) ##
 
         #-_-_-_-_-_-_-_-_-_-_-# Axis base draw
         if serial_COM_port or dummy_infograph:
@@ -366,8 +378,13 @@ class graph():
 
             #-_-_-_-_-_-_-_-_-_-_-# Axis base draw / Y axis part 1
             pygame.draw.rect(self.window_of_visualization, axis_color, (main_graph_x, self.y, len(selected_tab.selected_names) * y_axis_lenght, self.height))
-            for i in range(len(selected_tab.selected_names)): ###############pode estilizar as cores
-                pygame.draw.line(window_of_visualization,(255,255,255),(main_graph_x + (i + 1/2) * y_axis_lenght, self.y),
+            for i in range(len(selected_tab.selected_names)): ############### usar indice
+                color = None
+                for j in range(len(list_of_infographs)):
+                    if list_of_infographs[j].name == selected_tab.selected_names[i]:
+                        color = list_of_infographs[j].color
+                        break
+                pygame.draw.line(window_of_visualization,color,(main_graph_x + (i + 1/2) * y_axis_lenght, self.y),
                                  (main_graph_x + (i + 1/2) * y_axis_lenght, self.y + self.height), width=1)
                 text = font.render(selected_tab.selected_names[i][:3], True, (0, 0, 0)) ########### inclinar texto?
                 (self.window_of_visualization).blit(text, (main_graph_x + (i + 1/2) * y_axis_lenght - text.get_width()/2, self.y + self.height))
@@ -450,12 +467,11 @@ class graph():
                     pygame.draw.lines(window_of_visualization, self.list_of_infographs[i].color, False,
                                       self.current_list_of_coordinates[i], line_width)
 
-    ################################################################### substituir por função completa nuno
     # -_-_-_-_-_-_-_-_-_-_-# Additional Information
     def info(self, cursor_position):  # conditional if cursor_is_over graph
         point_distance = 1000000000
         aux = 0
-        font3 = pygame.font.SysFont('freesansbold.ttf', int(15))
+        font3 = pygame.font.SysFont(text_font, 12)
         closest_points = []
 
         if len(self.current_list_of_coordinates) >= 1:
@@ -471,11 +487,11 @@ class graph():
                             closest_points[i] = (j, self.current_list_of_coordinates[i][j], self.list_of_infographs[i].color)
 
                 pygame.draw.rect(self.window_of_visualization, (255, 255, 255), (
-                    10, self.height - 130, 60, 20 * len(self.current_list_of_coordinates)))
+                    10, self.height - 130, 60, 2 + 20 * len(self.current_list_of_coordinates)))
 
                 for i in range(len(closest_points)):  #gets the information for each point and prints it
                     info1 = font3.render(str(self.list_of_infographs[i].name) + ":", True, (0, 0, 0))
-                    info2 = font3.render(str(format(float(self.list_of_infographs[i].list_of_values[closest_points[i][0] 
+                    info2 = font3.render(str(format(float(self.list_of_infographs[i].list_of_values[closest_points[i][0]
                             + self.current_list_of_values_initial_and_final_positions[i][0]]), '.2f')), True, (0, 0, 0))
                     self.window_of_visualization.blit(info1, (10, self.height - 130 + (20 * i)))
                     self.window_of_visualization.blit(info2, (10, self.height - 120 + (20 * i)))
@@ -483,13 +499,7 @@ class graph():
 
         pygame.draw.line(self.window_of_visualization, graph_info_color, (cursor_position[0], self.y),
                          (cursor_position[0], self.y + self.height), info_line_width)
-
-        '''for i in range(len(self.current_list_of_coordinates)):
-            considered_coordinates = self.current_list_of_coordinates[i]
-            index = 0'''
-        coordinate = cursor_position  # None
-        # encontrar coordinate com chute por proportional conversion, incrementando index até (x,y)
-        pygame.draw.circle(self.window_of_visualization, info_dot_color, coordinate, info_dot_radius)
+        pygame.draw.circle(self.window_of_visualization, info_dot_color, cursor_position, info_dot_radius)
 
 main_graph = graph(window_of_visualization, main_graph_x, main_graph_y, main_graph_width, main_graph_height)
 
@@ -566,7 +576,7 @@ class checkbox:
         (self.window).blit(text, (self.x + 40, self.y + (self.size / 2 - text.get_height() / 2)))
 
         if self.state:
-            font2 = pygame.font.SysFont('freesansbold.ttf', int(1.5 * self.size))
+            font2 = pygame.font.SysFont(text_font, int(1.5 * self.size))
             text = font2.render("X", True, (0, 0, 0))
             (self.window).blit(text, (
                 self.x + (self.size / 2 - text.get_width() / 2), self.y + (self.size / 2 - text.get_height() / 2)))
@@ -624,7 +634,7 @@ class tab:
         pygame.draw.rect(self.window, self.color, (self.x, self.y, self.width, self.height), 0)
         pygame.draw.rect(self.window, self.close_color,
                          (self.close_x, self.close_y, self.close_width, self.close_height), 0)
-        font2 = pygame.font.SysFont('freesansbold.ttf', int(1.5 * self.close_height))
+        font2 = pygame.font.SysFont(text_font, int(1.5 * self.close_height))
         text = font2.render("X", True, (0, 0, 0))
         (self.window).blit(text, (self.close_x + (self.close_width / 2 - text.get_width() / 2),
                                   self.y + (self.close_height / 2 - text.get_height() / 2)))
@@ -652,7 +662,7 @@ selected_tab = None
 
 #-#-#-#-#-#-#-#-#-#-#-# Dummy Data Generator #-#-#-#-#-#-#-#-#-#-#-#
 #for testing without serial, just uncomment this part
-'''
+
 last_times = []
 dummy_infograph = infograph("D1", 2.3, list_of_colors_for_lines[0], "d1")
 dummy_infograph2 = infograph("D2", 1.5, list_of_colors_for_lines[1], "d2")
@@ -681,7 +691,7 @@ main_graph.x += len(list_of_infographs) * y_axis_lenght
 main_graph.width -= len(list_of_infographs) * y_axis_lenght
 main_bar.x = main_graph.x
 main_bar.width = main_graph.width
-'''
+
 
 
 #-#-#-#-#-#-#-#-#-#-#-# Program's Loop #-#-#-#-#-#-#-#-#-#-#-#
