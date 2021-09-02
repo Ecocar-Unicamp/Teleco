@@ -583,7 +583,23 @@ class checkbox:
 
     def cursor_is_over(self, cursor_position):
         return cursor_is_over(self.x, self.y, self.size, self.size, cursor_position)
-
+#-#-#-#-#-#-#-#-#-#-#-# Last value box #-#-#-#-#-#-#-#-#-#-#-#
+class last_value_box():
+    def __init__(self, window, x, y, width, height, last_value):
+        self.window = window
+        
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.last_value = last_value
+        
+        
+    def draw(self, outline=True):
+        pygame.draw.rect(self.window, (0,0,0), (self.x - 2, self.y - 2, self.width + 4, self.height + 4), 0)
+        pygame.draw.rect(self.window, (150,150,150), (self.x, self.y, self.width, self.height), 0)
+        text = font.render(str(self.last_value), True, (0, 0, 0))
+        (self.window).blit(text, (self.x + (self.width/2 - text.get_width()/2), self.y + (self.height/2 - text.get_height()/2)))
 
 #-#-#-#-#-#-#-#-#-#-#-# Tab #-#-#-#-#-#-#-#-#-#-#-#
 
@@ -613,12 +629,14 @@ class tab:
         self.selected = selected
         self.checkboxes = []
         self.selected_names = []
+        self.last_value_boxes = []
         for i in range(len(list_of_infographs)):
             self.selected_names.append(list_of_infographs[i].name)
 
         for i in range(len(self.selected_names)):
             self.checkboxes.append(checkbox(window_of_visualization, self.selected_names[i],
                                             1200, 40 * i + 100, 20, True))  ######## trocar i por checks
+            self.last_value_boxes.append(last_value_box(window_of_visualization, 1300, 40*i + 100, 40, 20, None))
 
     def draw(self, outline=True):  # Draws the Button
         if outline:  ############### dá pra ser melhor conceituado
@@ -648,6 +666,9 @@ class tab:
             pygame.draw.rect(self.window, (100, 100, 100), (1150, 50, 200, 400), 0)  ######## deixar em f do tamanho abaixo
             for c in range(len(self.checkboxes)):
                 self.checkboxes[c].draw()
+            for i in range(len(self.last_value_boxes)):
+                self.last_value_boxes[i].draw()
+
 
     def cursor_is_over(self,
                        cursor_position):  # Determines if the mouse cursor position in tuple (x,y) is over the button
@@ -900,6 +921,12 @@ while running:
             for equals in list_of_infographs:
                 if name == equals.name:
                     main_graph.list_of_infographs.append(equals)
+                    
+    # determines the last value and writes it in the box                
+    for i in range(len(selected_tab.last_value_boxes)):
+        if len(list_of_infographs[i].list_of_values) > 1:
+            selected_tab.last_value_boxes[i].last_value = round(list_of_infographs[i].list_of_values[-1],2)
+            selected_tab.last_value_boxes[i].draw()    
 
     main_graph.draw()
     main_bar.draw()
