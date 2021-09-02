@@ -37,7 +37,8 @@ that will be highlighted by dots on the graph line.
 
 The user can select what information to display clicking on the checkboxes on the right side of the window.
 This selection will be saved in the current tab and new tabs can be opend with the "new tab" button. To change the
-tab being shown just click the tab wich you want.
+tab being shown just click the tab wich you want. The boxes on the side of these checkboxes indicates the last value of 
+the respective graph.
 
 <img src="doc/Telemetry-Plotter-2021-08-25-20-31-32.gif">
 
