@@ -84,7 +84,7 @@ void loop() {
       }
       ///////////////////////////
 
-      Serial.println(graphs[i] + ";" + (String)treated_reading);
+      Serial.println((String)i + ";" + (String)treated_reading);
       last_times[i] = millis();
     }
   }
