@@ -40,24 +40,16 @@ deixar explicação
 
 '''
 fazer:
-ReadMe
-eixo y: cor linhas, sem 0 exp, 3 alg significativos, condicional para notação cientifica
-desenhar necessário básico antes de conectar; definir padrão para detectar se está conectado
-resizing: https://www.youtube.com/watch?v=edJZOQwrMKw&list=WL&index=5&t=233s&ab_channel=DaFluffyPotato
-revisar nomes, comentarios, organização em conjunto
-definir proximas melhorias
-transpor classes e funções para arquivos separados
+URGENTE: passos não estão sendo distanciados corretamente quando possuem OGs diferentes. pode ser um problema de precisao
+desenhar necessário básico antes de conectar
+basear conexoes em serial_COM_port ou dummy
 fazer identificação na lista de infographs por indice e nao por nome
-passar número e não o nome pelo serial
-except electronic prototyping platform desconectou
-connect DEVE MOSTRAR SE FOI DESCONECTADO: "Disconnected"
-testar desconexão inesperada: serial.serialutil.SerialException: ClearCommError failed (PermissionError(13, 'O dispositivo não reconhece o comando.', None, 22))
-checar sempre se listas vazias - "Identified: PermissionError"
-info tempo na barra
-fazer troca de cores dos botoes na chamada de draw e is over
+fazer troca de cores dos botoes na chamada de draw e is over; generalizar para estados de objeto em classes
+conferir se todos os selfs precisam ser selfs ou algum outro dado precisa ser self; ex: tamanho do grafico
+-- nao importante:
+resizing: https://www.youtube.com/watch?v=edJZOQwrMKw&list=WL&index=5&t=233s&ab_channel=DaFluffyPotato
+transpor classes e funções para arquivos separados
 função única para desenhar grupamento de entidades, ex: botões
-conferir se todos os selfs precisam ser selfs ou algum outro dado precisa ser self
-função generalizada de desenhar eixo x para passos pequenos ou tempos grandes
 '''
 # implementar troca de cor e texto nao diretamente no main: verificar se mais de 2 textos possiveis
 '''def is_over(self, pos):
@@ -159,6 +151,15 @@ def proportional_conversion(old_value, old_range, new_range):
         return (old_value * new_range / old_range)
 
 
+# Converts a values with more than 3 digits to a string with at maximum 3 significant algarisms;
+# if necessary, with scientific notation
+def scientific_notation(value): ######### as vezes sai com muitos zeros a direita; precisa checar quantos alg signf tem
+    converted = "{:#.3g}".format(value)
+    if 'e' in converted:
+        converted_list = converted.split("e")
+        converted = converted_list[0] + "{0:+}".format(int(converted_list[1])) #removes "e" and 0
+    return converted
+
 # -#-#-#-#-#-#-#-#-#-#-# Button #-#-#-#-#-#-#-#-#-#-#-#
 # -_-_-_-_-_-_-_-_-_-_-# Class
 # A button for clicking purposes
@@ -196,6 +197,7 @@ message_connection_button_1 = "Connecting"
 message_connection_button_2 = "Connected"
 message_connection_button_30 = "Verify Link"
 message_connection_button_31 = "Error"
+message_connection_button_4 = "Disconnected"
 connection_button_color = (255, 0, 0)
 connection_button = button(window_of_visualization, connection_button_color, 100, 100, 100, 20,
                            message_connection_button_0)
@@ -232,9 +234,9 @@ smallest_step_infograph = None
 minimum_frame_size = None
 
 dummy_infograph = None  # used for testing without Serial
+final_timestamp_index = None # precision of function timestamp()
 
 
-################################################# substituir variaveis globais
 # function for connecting with the electronic prototyping platform
 def connect():
     global list_of_infographs
@@ -243,9 +245,9 @@ def connect():
     global biggest_step
     global smallest_step_infograph
     global minimum_frame_size
+    global final_timestamp_index
 
     # identifies available COM ports
-    serial_COM_port = None
     ports = [comport.device for comport in serial.tools.list_ports.comports()]  # identifies existing ports
     for i in range(len(ports)):
         try:
@@ -259,57 +261,69 @@ def connect():
             serial_COM_port.reset_input_buffer()
             serial_COM_port.write("connect".encode())
             timing = time.time()
-            input = None
-            while (time.time() - timing < 3):  #################################### simplificar
+            while (time.time() - timing < 3):
                 if serial_COM_port.in_waiting:
                     input = serial_COM_port.readline().decode('utf-8').strip()
                     print(input)
-                    if (input == "begin"):
-                        break
-                    else:
-                        input = None
-            if input:
-                if (input == "begin"):  # any other case: serial_COM_port = None
-                    list_of_infographs = []
-                    biggest_step = None
-                    smallest_step_infograph = None
-                    minimum_frame_size = None
-                    dummy_infograph = None
-                    number = 0
-                    timing = time.time()
-                    while (1):
-                        if time.time() - timing > 3:  ####################### configurar restante dos resets
-                            serial_COM_port = None
-                            break
-                        # receives names and steps for graphs
-                        input = serial_COM_port.readline().decode('utf-8').strip()
-                        print(input)
-                        if (input == "end"):
-                            break
-                        input_list = input.split(";")
-                        name = input_list[0]
-                        step = float(input_list[1])
-                        unit = input_list[2]
-                        number = number % len(list_of_colors_for_lines)  # makes sure that the color is in the list
-                        color = list_of_colors_for_lines[number]
-                        list_of_infographs.append(infograph(name, step, color, unit))
+                    if (input == "begin"): # any other case: serial_COM_port = None
+                        list_of_infographs = []
+                        biggest_step = None
+                        smallest_step_infograph = None
+                        minimum_frame_size = None
+                        dummy_infograph = None ################ false
+                        final_timestamp_index = None
+                        number = 0
+                        timing = time.time()
+                        while (1):
+                            if time.time() - timing > 3: ############ reiniciar janela
+                                serial_COM_port = None
+                                list_of_infographs = []
+                                biggest_step = None
+                                smallest_step_infograph = None
+                                minimum_frame_size = None
+                                dummy_infograph = None
+                                final_timestamp_index = None
+                                break
+                            # receives names and steps for graphs
+                            input = serial_COM_port.readline().decode('utf-8').strip()
+                            print(input)
+                            if (input == "end"):
+                                break
+                            input_list = input.split(";")
+                            name = input_list[0]
+                            step = float(input_list[1])
+                            unit = input_list[2]
+                            number = number % len(list_of_colors_for_lines)  # makes sure that the color is in the list
+                            color = list_of_colors_for_lines[number]
+                            list_of_infographs.append(infograph(name, step, color, unit))
 
-                        if not biggest_step or step > biggest_step:
-                            biggest_step = step
-                        if not smallest_step_infograph:
-                            smallest_step_infograph = list_of_infographs[number]
-                        elif step < smallest_step_infograph.step:
-                            smallest_step_infograph = list_of_infographs[number]
+                            if not biggest_step or step > biggest_step:
+                                biggest_step = step
+                            if not smallest_step_infograph or step < smallest_step_infograph.step:
+                                smallest_step_infograph = list_of_infographs[number]
+                            number += 1
 
-                        number += 1
-
-                    minimum_frame_size = 3 * biggest_step / smallest_step_infograph.step
-                    break
-            serial_COM_port = None
+                        minimum_frame_size = 3 * biggest_step / smallest_step_infograph.step
+                        final_timestamp_index = 9 - int(math.log10(smallest_step_infograph.step))
+                        return
+    serial_COM_port = None
 
 
 # -#-#-#-#-#-#-#-#-#-#-# Graph #-#-#-#-#-#-#-#-#-#-#-#
 # allows intuitive visualization of data
+
+# -_-_-_-_-_-_-_-_-_-_-# Timestamp of the x axis
+# returns a string based on the number of seconds timestamp. precision is based on the smallest step
+def timestamp(seconds):
+    converted = datetime.timedelta(seconds = seconds)
+    if seconds < 3600:
+        initial = 2
+    else:
+        initial = 0
+    return str(converted)[initial:final_timestamp_index]
+
+
+# -_-_-_-_-_-_-_-_-_-_-# Class
 graph_info_color = (255, 255, 255)
 graph_background_color = (0, 0, 0)
 graph_second_background_color = (50, 50, 50)
@@ -320,8 +334,8 @@ info_line_width = 1
 info_dot_radius = 4
 
 axis_color = (200, 200, 200)
-number_of_x_marks = 7
-number_of_y_marks = 5
+number_of_x_marks = 7 # don't set it to <= 0
+number_of_y_marks = 5 # don't set it to <= 0
 
 main_graph_x = 300
 main_graph_y = 100
@@ -330,8 +344,6 @@ main_graph_height = 400
 
 y_axis_lenght = 50
 
-
-# -_-_-_-_-_-_-_-_-_-_-# Class
 class graph():
     def __init__(self, window_of_visualization, x, y, width, height):
         self.window_of_visualization = window_of_visualization
@@ -359,7 +371,7 @@ class graph():
                          (self.x, self.y, self.width, self.height))
         pygame.draw.rect(self.window_of_visualization, axis_color, (self.x, self.y + self.height, self.width, 40))
         pygame.draw.rect(self.window_of_visualization, color_of_screen,
-                         (10, self.height - 130, 60, 2 + 20 * len(self.current_list_of_coordinates)))  ##
+                         (10, self.height - 130, 60, 2 + 20 * len(self.current_list_of_coordinates)))  ##parametrizar
 
         # -_-_-_-_-_-_-_-_-_-_-# Axis base draw
         if serial_COM_port or dummy_infograph:
@@ -368,31 +380,27 @@ class graph():
             smallest_step_x_graphic_step = self.width / (self.size_of_frame - 1)
 
             # -_-_-_-_-_-_-_-_-_-_-# Axis base draw / X axis
-            if number_of_x_marks:  ###########graphic step pode ser calculado so no inicio; acho q esse if n precisa
-                time_step = None
-                if number_of_x_marks == 1:
-                    time_step = (self.size_of_frame - 1) * smallest_step_infograph.step / (number_of_x_marks)
-                    graphic_step = self.width / (number_of_x_marks)
+            time_step = None
+            if number_of_x_marks == 1:
+                time_step = (self.size_of_frame - 1) * smallest_step_infograph.step / (number_of_x_marks)
+                graphic_step = self.width / (number_of_x_marks)
+            else:
+                time_step = (self.size_of_frame - 1) * smallest_step_infograph.step / (number_of_x_marks - 1)
+                graphic_step = self.width / (number_of_x_marks - 1)
+            for position in range(number_of_x_marks):
+                pygame.draw.circle(self.window_of_visualization, info_dot_color,
+                                   (self.x + position * graphic_step, self.y + self.height), info_dot_radius)
+                text = minor_font.render(timestamp(self.initial_smallest_step_position_in_list * smallest_step_infograph.step +
+                            position * time_step), True, (0, 0, 0))
+                if position == 0:
+                    (self.window_of_visualization).blit(text,
+                                                        (self.x + position * graphic_step, self.y + self.height))
+                elif position == number_of_x_marks - 1:
+                    (self.window_of_visualization).blit(text, (
+                    self.x + position * graphic_step - text.get_width(), self.y + self.height))
                 else:
-                    time_step = (self.size_of_frame - 1) * smallest_step_infograph.step / (number_of_x_marks - 1)
-                    graphic_step = self.width / (number_of_x_marks - 1)
-                for position in range(number_of_x_marks):
-                    pygame.draw.circle(self.window_of_visualization, info_dot_color,
-                                       (self.x + position * graphic_step, self.y + self.height), info_dot_radius)
-                    timestamp = datetime.timedelta(
-                        seconds=(self.initial_smallest_step_position_in_list * smallest_step_infograph.step) +
-                                (position * time_step))
-                    text = minor_font.render(str(timestamp)[2:9], True, (
-                    0, 0, 0))  #########precisa ser revisado caso trabalhemos com tempos grandes ou passos pequenos
-                    if position == 0:
-                        (self.window_of_visualization).blit(text,
-                                                            (self.x + position * graphic_step, self.y + self.height))
-                    elif position == number_of_x_marks - 1:
-                        (self.window_of_visualization).blit(text, (
-                        self.x + position * graphic_step - text.get_width(), self.y + self.height))
-                    else:
-                        (self.window_of_visualization).blit(text, (
-                        self.x + position * graphic_step - text.get_width() / 2, self.y + self.height))
+                    (self.window_of_visualization).blit(text, (
+                    self.x + position * graphic_step - text.get_width() / 2, self.y + self.height))
 
             # -_-_-_-_-_-_-_-_-_-_-# Axis base draw / Y axis part 1
             pygame.draw.rect(self.window_of_visualization, axis_color,
@@ -405,7 +413,7 @@ class graph():
                         break
                 pygame.draw.line(window_of_visualization, color, (main_graph_x + (i + 1 / 2) * y_axis_lenght, self.y),
                                  (main_graph_x + (i + 1 / 2) * y_axis_lenght, self.y + self.height), width=1)
-                text = font.render(selected_tab.selected_names[i][:3], True, (0, 0, 0))  ########### inclinar texto?
+                text = font.render(selected_tab.selected_names[i][:3], True, (0, 0, 0))
                 (self.window_of_visualization).blit(text, (
                 main_graph_x + (i + 1 / 2) * y_axis_lenght - text.get_width() / 2, self.y + self.height))
 
@@ -456,10 +464,7 @@ class graph():
                     graphic_step = self.height / (number_of_y_marks - 1)
                     for position in range(number_of_y_marks):
                         value = lowest_value + position * value_step
-                        if len(str(value)) > 6:
-                            value = "{:.1e}".format(value)
-                        text = minor_font.render(str(value), True, (0, 0, 0))
-                        ########## essa parte precisa ser revisada para incluir notação científica caso trabalhemos com valores pequenos
+                        text = minor_font.render(scientific_notation(value), True, (0, 0, 0))
                         if position == 0:
                             (self.window_of_visualization).blit(text, (
                                 main_graph_x + (1 / 2 + i) * y_axis_lenght - text.get_width() / 2,
@@ -511,12 +516,9 @@ class graph():
                     10, self.height - 130, 60, 2 + 20 * len(self.current_list_of_coordinates)))
 
                 for i in range(len(closest_points)):  # gets the information for each point and prints it
-                    info1 = font3.render(str(self.list_of_infographs[i].name) + ":", True, (0, 0, 0))
-                    info2 = font3.render(str(format(float(self.list_of_infographs[i].list_of_values[closest_points[i][0]
-                                                                                                    +
-                                                                                                    self.current_list_of_values_initial_and_final_positions[
-                                                                                                        i][0]]),
-                                                    '.2f')), True, (0, 0, 0))
+                    info1 = font3.render(self.list_of_infographs[i].name + ":", True, (0, 0, 0))
+                    info2 = font3.render(scientific_notation(self.list_of_infographs[i].list_of_values[closest_points[i][0] +
+                                                              self.current_list_of_values_initial_and_final_positions[i][0]]), True, (0, 0, 0))
                     self.window_of_visualization.blit(info1, (10, self.height - 130 + (20 * i)))
                     self.window_of_visualization.blit(info2, (10, self.height - 120 + (20 * i)))
                     pygame.draw.circle(self.window_of_visualization, closest_points[i][2], closest_points[i][1],
@@ -617,7 +619,7 @@ class checkbox:
 
 
 # -#-#-#-#-#-#-#-#-#-#-# Last value box #-#-#-#-#-#-#-#-#-#-#-#
-class last_value_box(): ##aumentar tamanho da caixa
+class last_value_box():
     def __init__(self, window, x, y, width, height, last_value):
         self.window = window
 
@@ -627,12 +629,13 @@ class last_value_box(): ##aumentar tamanho da caixa
         self.height = height
         self.last_value = last_value
 
-    def draw(self, outline=True):
-        pygame.draw.rect(self.window, (0, 0, 0), (self.x - 2, self.y - 2, self.width + 4, self.height + 4), 0)
-        pygame.draw.rect(self.window, (150, 150, 150), (self.x, self.y, self.width, self.height), 0)
-        text = font.render(str(self.last_value), True, (0, 0, 0))
-        (self.window).blit(text, (
-        self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
+    def draw(self):
+        if(self.last_value != None):
+            pygame.draw.rect(self.window, (0, 0, 0), (self.x - 2, self.y - 2, self.width + 4, self.height + 4), 0)
+            pygame.draw.rect(self.window, (150, 150, 150), (self.x, self.y, self.width, self.height), 0)
+            text = font.render(scientific_notation(self.last_value), True, (0, 0, 0))
+            (self.window).blit(text, (
+            self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
 
 
 # -#-#-#-#-#-#-#-#-#-#-# Tab #-#-#-#-#-#-#-#-#-#-#-#
@@ -671,10 +674,10 @@ class tab:
         for i in range(len(self.selected_names)):
             self.checkboxes.append(checkbox(window_of_visualization, self.selected_names[i],
                                             1200, 40 * i + 100, 20, True))  ######## trocar i por checks
-            self.last_value_boxes.append(last_value_box(window_of_visualization, 1300, 40 * i + 100, 40, 20, None))
+            self.last_value_boxes.append(last_value_box(window_of_visualization, 1300, 40 * i + 100, 70, 20, None))
 
     def draw(self, outline=True):  # Draws the Button
-        if outline:  ############### dá pra ser melhor conceituado
+        if outline:
             pygame.draw.rect(self.window, (0, 0, 0), (self.x - 2, self.y - 2, self.width + 4, self.height + 4), 0)
             pygame.draw.rect(self.window, (0, 0, 0),
                              (self.close_x - 2, self.close_y - 2, self.close_width + 4, self.close_height + 4), 0)
@@ -698,8 +701,7 @@ class tab:
                 self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
 
         if self.selected:
-            pygame.draw.rect(self.window, (100, 100, 100), (1150, 50, 200, 400),
-                             0)  ######## deixar em f do tamanho abaixo
+            pygame.draw.rect(self.window, (100, 100, 100), (1150, 50, 200, 400), 0)
             for c in range(len(self.checkboxes)):
                 self.checkboxes[c].draw()
             for i in range(len(self.last_value_boxes)):
@@ -718,7 +720,7 @@ selected_tab = None
 
 # -#-#-#-#-#-#-#-#-#-#-# Dummy Data Generator #-#-#-#-#-#-#-#-#-#-#-#
 # for testing without serial, just uncomment this part
-'''
+
 last_times = []
 a = 0
 dummy_infograph = infograph("D1", 2.3, list_of_colors_for_lines[0], "d1")
@@ -741,6 +743,7 @@ for i in range(len(list_of_infographs)):
     if not biggest_step or list_of_infographs[i].step < biggest_step:
         smallest_step_infograph = list_of_infographs[i]
 minimum_frame_size = 3 * biggest_step / smallest_step_infograph.step
+final_timestamp_index = 9 - int(math.log10(smallest_step_infograph.step))
 main_graph.size_of_frame = 10 * minimum_frame_size
 list_of_tabs.append(tab(window_of_visualization, 100, 240, 100, 20, "Tab 1", True))
 selected_tab = list_of_tabs[0]
@@ -749,7 +752,7 @@ main_graph.x += len(list_of_infographs) * y_axis_lenght
 main_graph.width -= len(list_of_infographs) * y_axis_lenght
 main_bar.x = main_graph.x
 main_bar.width = main_graph.width
-'''
+
 # -#-#-#-#-#-#-#-#-#-#-# Program's Loop #-#-#-#-#-#-#-#-#-#-#-#
 
 cursor_position = None
@@ -767,16 +770,22 @@ while running:
         t.draw(window_of_visualization)
 
     # -_-_-_-_-_-_-_-_-_-_-# Data acquirement
-    ###################################################################### desconexão inesperada
-    if serial_COM_port and serial_COM_port.in_waiting:  # if serial has received information
-        input = serial_COM_port.readline().decode('utf-8').strip()
-        print(input)
-        input_list = input.split(";")
-        # adds new information to respective infograph
-        list_of_infographs[int(input_list[0])].list_of_values.append(float(input_list[1]))
+    ###################################################################### reset da janela
+    try:
+        if serial_COM_port and serial_COM_port.in_waiting:  # if serial has received information
+            input = serial_COM_port.readline().decode('utf-8').strip()
+            print(input)
+            input_list = input.split(";")
+            # adds new information to respective infograph
+            list_of_infographs[int(input_list[0])].list_of_values.append(float(input_list[1]))
+    except serial.SerialException:
+        print("Disconnected")
+        serial_COM_port = None
+        connection_button.color = (255, 0, 0)
+        connection_button.text = message_connection_button_4
 
     # $%$%$%$%$%$%$%$%# Dummy data #$%$%$%$%$%$%$%$%#
-    elif dummy_infograph:
+    if dummy_infograph:
         for i in range(len(list_of_infographs)):
             if (time.time() - last_times[i]) > list_of_infographs[i].step:
                 last_times[i] = time.time()
@@ -785,7 +794,7 @@ while running:
                 if i == 0:
                     list_of_infographs[i].list_of_values.append(random.randint(0, 1))
                 if i == 1:
-                    list_of_infographs[i].list_of_values.append(100*b + random.randrange(-100, 100, 1))
+                    list_of_infographs[i].list_of_values.append(100*b + random.randrange(-100000, 100000, 1))
                 if i == 2:
                     list_of_infographs[i].list_of_values.append(b + math.cos(random.randrange(-1000, 1000, 1) / 300))
                 if i == 3:
@@ -825,7 +834,7 @@ while running:
                 if serial_COM_port:
                     connection_button.color = (0, 255, 0)
                     connection_button.text = message_connection_button_2
-                    main_graph.size_of_frame = 10 * minimum_frame_size  ################# incluir condicional de tipo None
+                    main_graph.size_of_frame = 10 * minimum_frame_size
                     list_of_tabs.append(tab(window_of_visualization, 100, 240, 100, 20, "Tab 1",
                                             True))  ################################### simplificar
                     selected_tab = list_of_tabs[0]
@@ -927,7 +936,7 @@ while running:
             aovivo = False
 
     # displaces the graph
-    if key_pressed[pygame.K_UP]:  ######################### verificar se conta como event, talvez simplifique
+    if key_pressed[pygame.K_UP]:
         live_data = False
         freezing_button.text = message_freezing_button_1
         main_graph.initial_smallest_step_position_in_list += 1
