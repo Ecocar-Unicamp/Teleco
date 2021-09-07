@@ -773,9 +773,7 @@ while running:
         print(input)
         input_list = input.split(";")
         # adds new information to respective infograph
-        for i in range(len(list_of_infographs)):
-            if input_list[0] == list_of_infographs[i].name:
-                list_of_infographs[i].list_of_values.append(float(input_list[1]))
+        list_of_infographs[int(input_list[0])].list_of_values.append(float(input_list[1]))
 
     # $%$%$%$%$%$%$%$%# Dummy data #$%$%$%$%$%$%$%$%#
     elif dummy_infograph:
