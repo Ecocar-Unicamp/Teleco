@@ -4,6 +4,7 @@ import serial.tools.list_ports
 import datetime
 import time
 import math
+import os
 
 # import classes
 
@@ -92,45 +93,47 @@ window_of_visualization.blit(version_text, version_text_position)
 
 #################################################################### implementar essa parte
 # -#-#-#-#-#-#-#-#-#-#-# Saving the data #-#-#-#-#-#-#-#-#-#-#-#
-# Function creates a file to be used to save the data
+#Function creates a file to be used to save the data
 def CreateArch(list_of_infographs):
-    # Creates the file name with current the date and time
-    date = datetime.datetime.today()
-    arch_name = "telemetry data" + str(date.day) + str(date.month) + str(date.year) + str(date.hour) + str(
-        date.minute) + str(date.second) + ".txt"
+    #Cheks for and create if needed folder for all saved data
+    directory = "savedData"
+    parent_directory = os.getcwd()
+    path = os.path.join(parent_directory, directory)
 
-    # Creates the file and returns file name. If a file with this name already exists prints error menssage
     try:
-        arch = open(arch_name, "w")
+        os.mkdir(path)
 
-        arch.write(
-            "Data collection started at: " + str(date.day) + str(date.month) + str(date.year) + str(date.hour) + str(
-                date.minute) + str(date.second) + "\n")
-        arch.write("time ")
+    except FileExistsError:
+        print("savedData exists")
+    #Creates folder named with current date and time
+    finally:
+        Current_Date = datetime.datetime.today()
+        path = os.path.join(path, str(Current_Date).replace(":", ";"))
+        try:
+            os.mkdir(path)
+        except FileExistsError:
+            print("File already exists")
+        #Creates files for each infograph
         for i in list_of_infographs:
-            arch.write(i.name + " ")
+            pathi = os.path.join(path, i.name)
+            arch = open(pathi, "a")
+            arch.write(i.name)
+            arch.write("Data collection started at: " + str(Current_Date.day) + str(Current_Date.month) + str(Current_Date.year) + str(Current_Date.hour) + str(Current_Date.minute) + str(Current_Date.second) + "\n")
+            arch.write("time ")
             arch.write("\n")
-        arch.close()
+            arch.close()
 
-        return arch_name
-
-    except IOError:
-        print("ERROR: save file with this name already exists")
-
+        return path
 
 ############################################################## salvamento em tempo real; close; lista de linhas por infog
-def Save_data(arch_name, list_of_infographs, time):
-    # opens file
-    arch = open(arch_name, "a")
+def Save_data(infograph, path):
 
-    # writes the new data for each infograph in the file
-    arch.write(str(time))
-    for i in list_of_infographs:
-        arch.write(" ; ")
-        arch.write(i.list_of_values[-1])
+
+    #open the file of the infograph and writes the new data
+    pathi = os.path.join(path, infograph.name)
+    arch = open(pathi, "a")
+    arch.write(str(infograph.list_of_values[-1]))
     arch.write("\n")
-
-    # closes the file
     arch.close()
 
 
@@ -778,6 +781,7 @@ while running:
             input_list = input.split(";")
             # adds new information to respective infograph
             list_of_infographs[int(input_list[0])].list_of_values.append(float(input_list[1]))
+            Save_data(list_of_infographs[i], path_savedData)
     except serial.SerialException:
         print("Disconnected")
         serial_COM_port = None
@@ -831,6 +835,7 @@ while running:
                 connection_button.draw(window_of_visualization)
                 pygame.display.update()
                 connect()
+                path_savedData = CreateArch(list_of_infographs)
                 if serial_COM_port:
                     connection_button.color = (0, 255, 0)
                     connection_button.text = message_connection_button_2
