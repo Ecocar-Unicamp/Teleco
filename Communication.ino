@@ -1,7 +1,9 @@
-#define quantity_of_graphs 6
+#define quantity_of_graphs 6 //a linked list would make adding a graph more intuitive
 
 String graphs[quantity_of_graphs]; //names
 float steps[quantity_of_graphs]; //in seconds
+String max_value_alert[quantity_of_graphs];
+String min_value_alert[quantity_of_graphs];
 String uom[quantity_of_graphs]; //unit of measurement
 unsigned long last_times[quantity_of_graphs];
 
@@ -10,11 +12,18 @@ float reading;
 float treated_reading; //remove this
 String received_string;
 
-void setup() {
+void setup() { 
+
+  for(int i = 0; i < quantity_of_graphs; i++){
+    max_value_alert[i] = '\0';
+    min_value_alert[i] = '\0';
+  }
 
   graphs[0] = "Velocity";
   steps[0] = 2.3;
   uom[0] = "km/h";
+  max_value_alert[0] = "500";
+  min_value_alert[0] = "0";
 
   graphs[1] = "Current";
   steps[1] = 0.5;
@@ -27,12 +36,14 @@ void setup() {
   graphs[3] = "A";
   steps[3] = 0.7;
   uom[3] = "ua";
+  max_value_alert[3] = "1.5";
 
   graphs[4] = "B";
   steps[4] = 1.7;
   uom[4] = "ub";
+  min_value_alert[4] = "10000";
 
-  graphs[5] = "C";
+  graphs[5] = "TestName@#$%&";
   steps[5] = 0.3;
   uom[5] = "uc";
 
@@ -53,7 +64,7 @@ void loop() {
     if(received_string == "connect"){
       Serial.println("begin");
       for(int i = 0; i < quantity_of_graphs; i++){
-        Serial.println(graphs[i] + ";" + steps[i] + ";" + uom[i]);
+        Serial.println(graphs[i] + ";" + steps[i] + ";" + uom[i] + ";" + max_value_alert[i] + ";" + min_value_alert[i]);
       }
       Serial.println("end");
     }
@@ -65,7 +76,7 @@ void loop() {
 
       //trade for CAN entries
       if(i == 0){
-        treated_reading = reading;
+        treated_reading = 1000 - 3*reading;
       }
       else if(i == 1){
         treated_reading = 5 + sin(reading);
@@ -84,7 +95,7 @@ void loop() {
       }
       ///////////////////////////
 
-      Serial.println((String)i + ";" + (String)treated_reading);
+      Serial.println((String)i + ";" + treated_reading);
       last_times[i] = millis();
     }
   }
