@@ -125,7 +125,7 @@ def CreateArch(list_of_infographs):
             arch.write("\n")
             arch.close()
 
-            return path
+        return path
 
 ############################################################## salvamento em tempo real; close; lista de linhas por infog
 def Save_data(infograph, path):
@@ -262,7 +262,6 @@ def connect():
             # connects with identified electronic prototyping platform
             serial_COM_port.reset_input_buffer()
             serial_COM_port.write("connect".encode())
-            print("ok")
             timing = time.time()
             while (time.time() - timing < 3):
                 if serial_COM_port.in_waiting:
