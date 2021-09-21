@@ -132,6 +132,8 @@ def Save_data(infograph, path):
     # open the file of the infograph and writes the new data
     pathi = os.path.join(path, infograph.name)
     arch = open(pathi, "a")
+    #adicionar arch.write(time)
+    arch.write(" ; ")
     arch.write(str(infograph.list_of_values[-1]))
     arch.write("\n")
     arch.close()
@@ -773,7 +775,7 @@ while running:
             input_list = input.split(";")
             # adds new information to respective infograph
             list_of_infographs[int(input_list[0])].list_of_values.append(float(input_list[1]))
-            #Save_data(list_of_infographs[i], path_savedData) ############ i?
+            Save_data(list_of_infographs[int(input_list[0])], path_savedData)
     except serial.SerialException:
         print("Disconnected")
         serial_COM_port = None
