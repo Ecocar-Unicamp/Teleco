@@ -8,7 +8,7 @@ import os
 
 # import classes
 
-program_version = "Alpha"  # 1.0
+program_version = "BETA"  # 1.0
 
 '''
 comentários em inglês servem para explicar o código; em português, fazem um direcionamento de futuras mudanças
@@ -19,7 +19,6 @@ Marcadores:
 #-#-#-#-#-#-#-#-#-#-#-# TítuloTópico #-#-#-#-#-#-#-#-#-#-#-#
 #-_-_-_-_-_-_-_-_-_-_-# Tópico / Subtópico
 # Explicação
-###################### Nota (Ctrl + f + "##" para pesquisar o q falta; ao solucionar, remover)
 #$%$%$%$%$%$%$%$%# Extra #$%$%$%$%$%$%$%$%#
 '''
 
@@ -34,36 +33,20 @@ criar atalho
 '''
 
 '''
-atentar-se a:
+-- fazer até v1
+desenhar necessário básico antes de conectar - depois de decidir a aparencia
 parametrizar tudo!!!!
 deixar explicação
-'''
-
-'''
-fazer:
-URGENTE: passos não estão sendo distanciados corretamente quando possuem OGs diferentes. é um problema do dummy apenas
-desenhar necessário básico antes de conectar
-fazer identificação na lista de infographs por indice e nao por nome
-fazer troca de cores dos botoes na chamada de draw e is over; generalizar para estados de objeto em classes
-fazer reboot de tudo quando desconectar
-verificar redundância de etapas e se podem ser encapsuladas
--- nao importante:
+-- futuros pontos de melhoria:
 resizing: https://www.youtube.com/watch?v=edJZOQwrMKw&list=WL&index=5&t=233s&ab_channel=DaFluffyPotato
 transpor classes e funções para arquivos separados
 função única para desenhar grupamento de entidades, ex: botões
+passos não estão sendo distanciados corretamente quando possuem OGs diferentes. é um problema do dummy apenas
 '''
-# implementar troca de cor e texto nao diretamente no main: verificar se mais de 2 textos possiveis
-'''def is_over(self, pos):
-    if cursor_is_over(x, y, width, height, cursor_position):
-        self.color = self.secondary_color
-        return True
-    self.color = self.main_color
-    return False'''
 
 pygame.init()
 
 # -#-#-#-#-#-#-#-#-#-#-# Program's base interface #-#-#-#-#-#-#-#-#-#-#-#
-
 x_size_of_window = 1400
 y_size_of_window = 650
 color_of_screen = (0, 128, 128)
@@ -91,7 +74,6 @@ version_text_position = (0, y_size_of_window - 16)
 window_of_visualization.blit(version_text, version_text_position)
 
 
-#################################################################### implementar essa parte
 # -#-#-#-#-#-#-#-#-#-#-# Saving the data #-#-#-#-#-#-#-#-#-#-#-#
 # Function creates a file to be used to save the data
 def CreateArch(list_of_infographs):
@@ -127,7 +109,6 @@ def CreateArch(list_of_infographs):
 
         return path
 
-############################################################## salvamento em tempo real; close; lista de linhas por infog
 def Save_data(infograph, path):
     # open the file of the infograph and writes the new data
     pathi = os.path.join(path, infograph.name)
@@ -252,7 +233,7 @@ def connect():
     global final_timestamp_index
 
     # identifies available COM ports
-    ports = [comport.device for comport in serial.tools.list_ports.comports()]  # identifies existing ports
+    ports = [comport.device for comport in serial.tools.list_ports.comports()]
     for i in range(len(ports)):
         try:
             selected_port = ports[i]
@@ -334,7 +315,7 @@ info_dot_color = (120, 120, 255)
 
 line_width = 1
 info_line_width = 1
-info_dot_radius = 4
+info_dot_radius = 3
 
 axis_color = (200, 200, 200)
 number_of_x_marks = 7 # don't set it to <= 0
@@ -362,12 +343,11 @@ class graph():
         self.current_list_of_coordinates = []
         self.current_list_of_values_initial_and_final_positions = []  # (x,y) for showing information
 
-    def cursor_is_over(self,
-                       cursor_position):  # Determines if the mouse cursor position in tuple (x,y) is over the button
+    def cursor_is_over(self, cursor_position):  # Determines if the mouse cursor position in tuple (x,y) is over the button
         return cursor_is_over(self.x, self.y, self.width, self.height, cursor_position)
 
     # draws the graph
-    def draw(self): ## muito processamento redundante está sendo feito, a atualização de certos parâmetros aqui só deve mudar com novos inputs
+    def draw(self):
         pygame.draw.rect(self.window_of_visualization, graph_second_background_color,
                          (main_graph_x - 4, main_graph_y - 4, main_graph_width + 8, main_graph_height + 88))
         pygame.draw.rect(self.window_of_visualization, graph_background_color,
@@ -376,8 +356,8 @@ class graph():
         pygame.draw.rect(self.window_of_visualization, color_of_screen,
                          (10, self.height - 130, 60, 2 + 20 * len(self.current_list_of_coordinates)))
 
-        # -_-_-_-_-_-_-_-_-_-_-# Axis base draw
         if serial_COM_port or dummy_infograph:
+            # -_-_-_-_-_-_-_-_-_-_-# Axis base draw
             self.current_list_of_coordinates = []
             self.current_list_of_values_initial_and_final_positions = []
             smallest_step_x_graphic_step = self.width / (self.size_of_frame - 1)
@@ -423,12 +403,7 @@ class graph():
                                  (main_graph_x, self.y + position * graphic_step),
                                  (self.x + self.width, self.y + position * graphic_step), width=1)
 
-        # -_-_-_-_-_-_-_-_-_-_-# Information Presentation
-        if serial_COM_port or dummy_infograph:
-            self.current_list_of_coordinates = []
-            self.current_list_of_values_initial_and_final_positions = []
-            smallest_step_x_graphic_step = self.width / (self.size_of_frame - 1)
-
+            # -_-_-_-_-_-_-_-_-_-_-# Information Presentation
             # defines what data will be worked with
             for i in range(len(self.list_of_infographs)):
                 self.current_list_of_coordinates.append([])
@@ -532,10 +507,8 @@ class graph():
 main_graph = graph(window_of_visualization, main_graph_x, main_graph_y, main_graph_width, main_graph_height)
 
 # -#-#-#-#-#-#-#-#-#-#-# Bar #-#-#-#-#-#-#-#-#-#-#-#
-
 color_of_pointer = (0, 255, 0)
 pointer_thickness = 2
-
 
 class bar:
     def __init__(self, window, color, x, y, width, height):
@@ -561,19 +534,6 @@ class bar:
             self.pointer(color_of_pointer, pointer_pos + main_graph.x, main_graph.y + main_graph.height + 30,
                          pointer_thickness)
 
-    '''def move_pointer(self, graph, infograph, freeze_button, live):
-        graph.initial_smallest_step_position_in_list = int(
-            proportional_conversion(cursor_position[0] - graph.x,
-                                    graph.width,
-                                    len(infograph.list_of_values) - graph.size_of_frame))  # updates values shown in graph based on click location
-        if graph.size_of_frame < len(infograph.list_of_values):
-            pointer_pos = proportional_conversion(graph.initial_smallest_step_position_in_list,
-                                                  len(infograph.list_of_values) - graph.size_of_frame,
-                                                  graph.width)  # updates pointer position based on click location
-        # freezes shown data
-        freeze_button.text = message_freezing_button_1
-        live = False''' ####### revisar e decidir se remove
-
     def cursor_is_over(self, cursor_position):  # Determines if the mouse cursor position in tuple (x,y) is over the bar
         return cursor_is_over(self.x, self.y, self.width, self.height, cursor_position)
 
@@ -583,9 +543,7 @@ main_bar = bar(window_of_visualization, (141, 141, 141), main_graph.x - pointer_
 pointer_pos = main_graph.x + main_graph.width - pointer_thickness
 
 # -#-#-#-#-#-#-#-#-#-#-# Checkbox #-#-#-#-#-#-#-#-#-#-#-#
-
 checkbox_main_color = (53, 87, 28)
-
 
 class checkbox:
     def __init__(self, window, name, x, y, size=20, state=False):
@@ -637,11 +595,9 @@ class last_value_box():
 
 
 # -#-#-#-#-#-#-#-#-#-#-# Tab #-#-#-#-#-#-#-#-#-#-#-#
-
 tab_main_color = (0, 255, 0)
 tab_secondary_color = (0, 150, 0)
 tab_close_color = (255, 0, 0)
-
 
 # Class for the tabs of diferent infographs. The class holds an index that identifies the tab, a list of the infographs
 # avilable and a list of checkboxes used to selecte wich infographs will be shown. The class has a function to create
@@ -679,7 +635,7 @@ class tab:
         pygame.draw.rect(self.window, (0, 0, 0),
                          (self.close_x - 2, self.close_y - 2, self.close_width + 4, self.close_height + 4), 0)
 
-        if self.selected:  ##################### isso dá pra ser enxugado e se basear só em selected_tab
+        if self.selected:
             self.color = tab_secondary_color
         else:
             self.color = tab_main_color
@@ -717,7 +673,7 @@ selected_tab = None
 
 # -#-#-#-#-#-#-#-#-#-#-# Dummy Data Generator #-#-#-#-#-#-#-#-#-#-#-#
 # for testing without serial, just uncomment this part
-# use with caution: many bugs when connecting with dummy infographs are not solved
+# do not try to connect the arduino when working with dummy, many bugs are not solved
 '''
 dummy_infograph = True
 last_times = []
@@ -737,7 +693,7 @@ for i in range(len(list_of_infographs)):
         biggest_step = list_of_infographs[i].step
 smallest_step_infograph = None
 for i in range(len(list_of_infographs)):
-    if not biggest_step or list_of_infographs[i].step < biggest_step:
+    if not smallest_step_infograph or list_of_infographs[i].step < smallest_step_infograph.step:
         smallest_step_infograph = list_of_infographs[i]
 minimum_frame_size = 3 * biggest_step / smallest_step_infograph.step
 final_timestamp_index = 9 - int(math.log10(smallest_step_infograph.step))
@@ -752,7 +708,6 @@ main_bar.width = main_graph.width
 '''
 
 # -#-#-#-#-#-#-#-#-#-#-# Program's Loop #-#-#-#-#-#-#-#-#-#-#-#
-
 cursor_position = None
 live_data = True
 running = True
@@ -785,6 +740,10 @@ while running:
         main_graph.width = main_graph_width
         main_bar.x = main_graph.x
         main_bar.width = main_graph.width
+        main_graph.list_of_infographs = []
+        main_graph.current_list_of_coordinates = []
+        main_graph.current_list_of_values_initial_and_final_positions = []
+        selected_tab = None
         list_of_tabs = []
 
     # $%$%$%$%$%$%$%$%# Dummy data #$%$%$%$%$%$%$%$%#
@@ -911,13 +870,12 @@ while running:
                         selected_tab.checkboxes[c].state = not selected_tab.checkboxes[c].state
 
             # -_-_-_-_-_-_-_-_-_-_-# User commands / Bar management
-            # checks if user clicks the bar #################essa parte pode ser embutida na própria classe
+            # checks if user clicks the bar
             if smallest_step_infograph != None:
                 if main_bar.cursor_is_over(cursor_position):
                     # updates values shown in graph based on click location
                     main_graph.initial_smallest_step_position_in_list = int(
-                        proportional_conversion(cursor_position[0] - main_graph.x,
-                                                main_graph.width,
+                        proportional_conversion(cursor_position[0] - main_graph.x, main_graph.width,
                                                 len(smallest_step_infograph.list_of_values) - main_graph.size_of_frame))
                     if main_graph.size_of_frame < len(smallest_step_infograph.list_of_values):
                         pointer_pos = proportional_conversion(main_graph.initial_smallest_step_position_in_list,
