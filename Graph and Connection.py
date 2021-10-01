@@ -100,7 +100,7 @@ def CreateArch(list_of_infographs):
             pathi = os.path.join(path, i.name)
             arch = open(pathi, "a")
             arch.write(i.name)
-            arch.write("Data collection started at: " + str(Current_Date.day) + str(Current_Date.month) + str(
+            arch.write("\nData collection started at: " + str(Current_Date.day) + str(Current_Date.month) + str(
                 Current_Date.year) + str(Current_Date.hour) + str(Current_Date.minute) + str(
                 Current_Date.second) + "\n")
             arch.write("time ")
@@ -113,7 +113,7 @@ def Save_data(infograph, path):
     # open the file of the infograph and writes the new data
     pathi = os.path.join(path, infograph.name)
     arch = open(pathi, "a")
-    #adicionar arch.write(time)
+    arch.write(str(infograph.step * len(infograph.list_of_values)))
     arch.write(" ; ")
     arch.write(str(infograph.list_of_values[-1]))
     arch.write("\n")
