@@ -727,8 +727,6 @@ smallest_step_infograph = None
 for i in range(len(list_of_infographs)):
     if not smallest_step_infograph or list_of_infographs[i].step < smallest_step_infograph.step:
         smallest_step_infograph = list_of_infographs[i]
-main_graph.highest_global_value = [None for i in range(len(list_of_infographs))]
-main_graph.lowest_global_value = [None for i in range(len(list_of_infographs))]
 minimum_frame_size = 3 * biggest_step / smallest_step_infograph.step
 final_timestamp_index = 9 - int(math.log10(smallest_step_infograph.step))
 main_graph.size_of_frame = 10 * minimum_frame_size
