@@ -184,7 +184,7 @@ message_connection_button_30 = "Verify Link"
 message_connection_button_31 = "Error"
 message_connection_button_4 = "Disconnected"
 connection_button_color = (255, 0, 0)
-connection_button = button(window_of_visualization, connection_button_color, 100, 100, 100, 20,
+connection_button = button(window_of_visualization, connection_button_color, 100, 80, 100, 20,
                            message_connection_button_0)
 
 # -_-_-_-_-_-_-_-_-_-_-# Live Data + Freezing Button variables
@@ -192,12 +192,32 @@ connection_button = button(window_of_visualization, connection_button_color, 100
 message_freezing_button_0 = "Freeze"
 message_freezing_button_1 = "Live Data"
 freezing_button_color = (0, 0, 255)
-freezing_button = button(window_of_visualization, freezing_button_color, 100, 140, 100, 20, message_freezing_button_0)
+freezing_button = button(window_of_visualization, freezing_button_color, 100, 110, 100, 20, message_freezing_button_0)
+live_data = True
+
+# -_-_-_-_-_-_-_-_-_-_-# Set Window Button variables
+# button for setting the window size as the lenghth of the list of values
+set_window_button_color = (230, 120, 180)
+set_window_button = button(window_of_visualization, set_window_button_color, 100, 140, 100, 20, "Set Window")
+
+# -_-_-_-_-_-_-_-_-_-_-# Change View Button variables
+# button for freezing or defreezing the graph
+message_change_view_button_0 = "Local View"
+message_change_view_button_1 = "Global View"
+change_view_button_color = (130, 255, 150)
+change_view_button = button(window_of_visualization, change_view_button_color, 100, 170, 100, 20, message_change_view_button_0)
+local_view = True
 
 # -_-_-_-_-_-_-_-_-_-_-# New Tab Button variables
 new_tab_button_color = (100, 100, 255)
 new_tab_button = button(window_of_visualization, new_tab_button_color, 100, 200, 100, 20, "New Tab")
 
+def draws_buttons():
+    connection_button.draw()
+    freezing_button.draw()
+    new_tab_button.draw()
+    set_window_button.draw()
+    change_view_button.draw()
 
 # -#-#-#-#-#-#-#-#-#-#-# Infograph Class #-#-#-#-#-#-#-#-#-#-#-#
 # Information holder for individual graphs
@@ -208,6 +228,8 @@ class infograph():
         self.unit = unit
         self.color = color
         self.list_of_values = []
+        self.highest_global_value = None
+        self.lowest_global_value = None
 
 
 list_of_infographs = []
@@ -313,7 +335,7 @@ graph_background_color = (0, 0, 0)
 graph_second_background_color = (50, 50, 50)
 info_dot_color = (120, 120, 255)
 
-line_width = 1
+line_width = 2
 info_line_width = 1
 info_dot_radius = 3
 
@@ -431,14 +453,19 @@ class graph():
                     self.current_list_of_values_initial_and_final_positions.append(
                         (initial_position_in_list, final_position_in_list))
 
-                    lowest_value = min(list_of_selected_values)
-                    highest_value = max(list_of_selected_values)
-
                     # -_-_-_-_-_-_-_-_-_-_-# Information Presentation / Y axis part 2
-                    value_step = (highest_value - lowest_value) / (number_of_y_marks - 1)
+                    if local_view:
+                        lowest_value = min(list_of_selected_values)
+                        highest_value = max(list_of_selected_values)
+                        value_step = (highest_value - lowest_value) / (number_of_y_marks - 1)
+                    else:
+                        value_step = (self.list_of_infographs[i].highest_global_value - self.list_of_infographs[i].lowest_global_value) / (number_of_y_marks - 1)
                     graphic_step = self.height / (number_of_y_marks - 1)
                     for position in range(number_of_y_marks):
-                        value = lowest_value + position * value_step
+                        if local_view:
+                            value = lowest_value + position * value_step
+                        else:
+                            value = self.list_of_infographs[i].lowest_global_value + position * value_step
                         text = minor_font.render(scientific_notation(value), True, (0, 0, 0))
                         if position == 0:
                             (self.window_of_visualization).blit(text, (
@@ -459,8 +486,13 @@ class graph():
 
                     for j in range(len(list_of_selected_values)):
                         x_coordinate = self.x + initial_x_position + j * graphic_step
-                        y_coordinate = self.y + self.height - proportional_conversion(
-                            list_of_selected_values[j] - lowest_value, highest_value - lowest_value, self.height)
+                        if local_view:
+                            y_coordinate = self.y + self.height - proportional_conversion(
+                                list_of_selected_values[j] - lowest_value, highest_value - lowest_value, self.height)
+                        else:
+                            y_coordinate = self.y + self.height - proportional_conversion(
+                                list_of_selected_values[j] - self.list_of_infographs[i].lowest_global_value,
+                                self.list_of_infographs[i].highest_global_value - self.list_of_infographs[i].lowest_global_value, self.height)
 
                         self.current_list_of_coordinates[i].append((x_coordinate, y_coordinate))
 
@@ -695,6 +727,8 @@ smallest_step_infograph = None
 for i in range(len(list_of_infographs)):
     if not smallest_step_infograph or list_of_infographs[i].step < smallest_step_infograph.step:
         smallest_step_infograph = list_of_infographs[i]
+main_graph.highest_global_value = [None for i in range(len(list_of_infographs))]
+main_graph.lowest_global_value = [None for i in range(len(list_of_infographs))]
 minimum_frame_size = 3 * biggest_step / smallest_step_infograph.step
 final_timestamp_index = 9 - int(math.log10(smallest_step_infograph.step))
 main_graph.size_of_frame = 10 * minimum_frame_size
@@ -709,14 +743,11 @@ main_bar.width = main_graph.width
 
 # -#-#-#-#-#-#-#-#-#-#-# Program's Loop #-#-#-#-#-#-#-#-#-#-#-#
 cursor_position = None
-live_data = True
 running = True
 
 while running:
     # -_-_-_-_-_-_-_-_-_-_-# User interactives
-    connection_button.draw()
-    freezing_button.draw()
-    new_tab_button.draw()
+    draws_buttons()
     pygame.draw.rect(window_of_visualization, (100, 100, 100), (90, 225, 150, 400),
                      0)  # precisa esconder guias apagadas
     for t in list_of_tabs:
@@ -728,9 +759,16 @@ while running:
             input = serial_COM_port.readline().decode('utf-8').strip()
             print(input)
             input_list = input.split(";")
+            index = int(input_list[0])
+            value = float(input_list[1])
             # adds new information to respective infograph
-            list_of_infographs[int(input_list[0])].list_of_values.append(float(input_list[1]))
-            Save_data(list_of_infographs[int(input_list[0])], path_savedData)
+            list_of_infographs[index].list_of_values.append(value)
+            Save_data(list_of_infographs[index], path_savedData)
+            # calculates new global highest and lowest
+            if list_of_infographs[index].highest_global_value == None or list_of_infographs[index].highest_global_value < value:
+                list_of_infographs[index].highest_global_value = value
+            if list_of_infographs[index].lowest_global_value == None or list_of_infographs[index].lowest_global_value > value:
+                list_of_infographs[index].lowest_global_value = value
     except serial.SerialException:
         print("Disconnected")
         serial_COM_port = None
@@ -754,17 +792,23 @@ while running:
                 a += 0.05
                 b = math.cos(a)
                 if i == 0:
-                    list_of_infographs[i].list_of_values.append(random.randint(0, 1))
+                    value = random.randint(0, 1)
                 if i == 1:
-                    list_of_infographs[i].list_of_values.append(100*b + random.randrange(-100000, 100000, 1))
+                    value = 100*b + random.randrange(-100000, 100000, 1)
                 if i == 2:
-                    list_of_infographs[i].list_of_values.append(b + math.cos(random.randrange(-1000, 1000, 1) / 300))
+                    value = b + math.cos(random.randrange(-1000, 1000, 1) / 300)
                 if i == 3:
-                    list_of_infographs[i].list_of_values.append(-b + math.acos(random.randrange(-1000, 1000, 1) / 1000))
+                    value = -b + math.acos(random.randrange(-1000, 1000, 1) / 1000)
                 if i == 4:
-                    list_of_infographs[i].list_of_values.append(b + 2 ** -random.randint(0, 10))
+                    value = b + 2 ** -random.randint(0, 10)
                 if i == 5:
-                    list_of_infographs[i].list_of_values.append(b + random.randint(1, 10) ** (-1))
+                    value = b + random.randint(1, 10) ** (-1)
+                list_of_infographs[i].list_of_values.append(value)
+                # calculates new global highest and lowest
+                if list_of_infographs[i].highest_global_value == None or list_of_infographs[i].highest_global_value < value:
+                    list_of_infographs[i].highest_global_value = value
+                if list_of_infographs[i].lowest_global_value == None or list_of_infographs[i].lowest_global_value > value:
+                    list_of_infographs[i].lowest_global_value = value
 
     # -_-_-_-_-_-_-_-_-_-_-# User commands
     for event in pygame.event.get():
@@ -822,6 +866,25 @@ while running:
                 elif freezing_button.text == message_freezing_button_1:
                     freezing_button.text = message_freezing_button_0
                     live_data = True
+
+            # -_-_-_-_-_-_-_-_-_-_-# User commands / Set Window button
+            # set window size as standard
+            if set_window_button.cursor_is_over(cursor_position):
+                if serial_COM_port or dummy_infograph:
+                    main_graph.initial_smallest_step_position_in_list = 0
+                    main_graph.size_of_frame = len(smallest_step_infograph.list_of_values)
+                    if main_graph.size_of_frame < minimum_frame_size:
+                        main_graph.size_of_frame = minimum_frame_size
+
+            # -_-_-_-_-_-_-_-_-_-_-# User commands / Change View button
+            # alterantes between global and local view
+            if change_view_button.cursor_is_over(cursor_position):
+                if change_view_button.text == message_change_view_button_0:
+                    change_view_button.text = message_change_view_button_1
+                    local_view = False
+                elif change_view_button.text == message_change_view_button_1:
+                    change_view_button.text = message_change_view_button_0
+                    local_view = True
 
             # -_-_-_-_-_-_-_-_-_-_-# User commands / Tab management
             # creates a new tab
