@@ -618,7 +618,7 @@ class last_value_box():
 
     def draw(self):
         if(self.last_value != None):
-            text = font.minor_font(scientific_notation(self.last_value), True, (0, 0, 0))
+            text = minor_font.render(scientific_notation(self.last_value), True, (0, 0, 0))
             (self.window).blit(text, (
             self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
 
