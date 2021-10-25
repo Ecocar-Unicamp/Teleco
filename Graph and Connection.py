@@ -40,7 +40,7 @@ deixar explicação
 -- futuros pontos de melhoria:
 resizing: https://www.youtube.com/watch?v=edJZOQwrMKw&list=WL&index=5&t=233s&ab_channel=DaFluffyPotato
 transpor classes e funções para arquivos separados
-função única para desenhar grupamento de entidades, ex: botões
+caso tenhamos um membro daltonico, reavaliar cores
 passos não estão sendo distanciados corretamente quando possuem OGs diferentes. é um problema do dummy apenas
 '''
 
@@ -73,8 +73,9 @@ version_text = font.render("Telemetry Plotter  Version: " + str(program_version)
 version_text_position = (0, y_size_of_window - 16)
 window_of_visualization.blit(version_text, version_text_position)
 
-informatio_box_x = 1000 
+informatio_box_x = 1000
 informatio_box_y = 100
+
 
 # -#-#-#-#-#-#-#-#-#-#-# Saving the data #-#-#-#-#-#-#-#-#-#-#-#
 # Function creates a file to be used to save the data
@@ -111,6 +112,7 @@ def CreateArch(list_of_infographs):
 
         return path
 
+
 def Save_data(infograph, path):
     # open the file of the infograph and writes the new data
     pathi = os.path.join(path, infograph.name)
@@ -145,14 +147,24 @@ def scientific_notation(value):
     converted = "{:#.3g}".format(value)
     if 'e' in converted:
         converted_list = converted.split("e")
-        converted = converted_list[0] + "{0:+}".format(int(converted_list[1])) #removes "e" and 0
+        converted = converted_list[0] + "{0:+}".format(int(converted_list[1]))  # removes "e" and 0
     return converted
+
+# -_-_-_-_-_-_-_-_-_-_-# Timestamp of the x axis
+# returns a string based on the number of seconds timestamp. precision is based on the smallest step
+def timestamp(seconds):
+    converted = datetime.timedelta(seconds=seconds)
+    if seconds < 3600:
+        initial = 2
+    else:
+        initial = 0
+    return str(converted)[initial:final_timestamp_index]
 
 # -#-#-#-#-#-#-#-#-#-#-# Button #-#-#-#-#-#-#-#-#-#-#-#
 # -_-_-_-_-_-_-_-_-_-_-# Class
 # A button for clicking purposes
 class button():
-     def __init__(self, window, color, x, y, width, height, text=''):
+    def __init__(self, window, color, x, y, width, height, text=''):
         self.window = window
         self.color = color
         self.secondary_color = tuple(map(lambda i: i - 20, color))
@@ -161,22 +173,24 @@ class button():
         self.width = width
         self.height = height
         self.text = text
-        
-      # Draws the Button
-      def draw(self, cursor_position):
+
+        # Draws the Button
+
+    def draw(self, cursor_position):
         color_used = self.color
         if self.cursor_is_over(cursor_position):
-          color_used = self.secondary_color
-        
+            color_used = self.secondary_color
+
         pygame.draw.rect(self.window, (0, 0, 0), (self.x - 2, self.y - 2, self.width + 4, self.height + 4), 0)
         pygame.draw.rect(self.window, color_used, (self.x, self.y, self.width, self.height), 0)
-        
+
         if self.text != '':
             text = font.render(self.text, True, (0, 0, 0))
             (self.window).blit(text, (
                 self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
-      # Determines if the mouse cursor position in tuple (x,y) is over the button
-      def cursor_is_over(self, cursor_position):
+        # Determines if the mouse cursor position in tuple (x,y) is over the button
+
+    def cursor_is_over(self, cursor_position):
         return cursor_is_over(self.x, self.y, self.width, self.height, cursor_position)
 
 
@@ -189,6 +203,8 @@ message_connection_button_30 = "Verify Link"
 message_connection_button_31 = "Error"
 message_connection_button_4 = "Disconnected"
 connection_button_color = (97, 205, 97)
+connection_button_color1 = (255, 189, 0)
+connection_button_color2 = (248, 82, 82)
 connection_button = button(window_of_visualization, connection_button_color, 30, 30, 100, 20,
                            message_connection_button_0)
 
@@ -217,6 +233,8 @@ local_view = True
 # -_-_-_-_-_-_-_-_-_-_-# New Tab Button variables
 new_tab_button_color = (100, 100, 100)
 new_tab_button = button(window_of_visualization, new_tab_button_color, 250, 30, 100, 20, "New Tab")
+max_number_of_tabs = 10
+
 
 def draws_buttons(cursor_position):
     connection_button.draw(cursor_position)
@@ -224,6 +242,7 @@ def draws_buttons(cursor_position):
     new_tab_button.draw(cursor_position)
     set_window_button.draw(cursor_position)
     change_view_button.draw(cursor_position)
+
 
 # -#-#-#-#-#-#-#-#-#-#-# Infograph Class #-#-#-#-#-#-#-#-#-#-#-#
 # Information holder for individual graphs
@@ -247,7 +266,7 @@ smallest_step_infograph = None
 minimum_frame_size = None
 
 dummy_infograph = False  # used for testing without Serial
-final_timestamp_index = None # precision of function timestamp()
+final_timestamp_index = None  # precision of function timestamp()
 
 
 # function for connecting with the electronic prototyping platform
@@ -278,7 +297,7 @@ def connect():
                 if serial_COM_port.in_waiting:
                     input = serial_COM_port.readline().decode('utf-8').strip()
                     print(input)
-                    if (input == "begin"): # any other case: serial_COM_port = None
+                    if (input == "begin"):  # any other case: serial_COM_port = None
                         list_of_infographs = []
                         biggest_step = None
                         smallest_step_infograph = None
@@ -316,24 +335,13 @@ def connect():
                             number += 1
 
                         minimum_frame_size = 3 * biggest_step / smallest_step_infograph.step
-                        final_timestamp_index = 9 - int(math.log10(smallest_step_infograph.step))
+                        final_timestamp_index = 10 - int(math.log10(smallest_step_infograph.step))
                         return
     serial_COM_port = None
 
 
 # -#-#-#-#-#-#-#-#-#-#-# Graph #-#-#-#-#-#-#-#-#-#-#-#
 # allows intuitive visualization of data
-
-# -_-_-_-_-_-_-_-_-_-_-# Timestamp of the x axis
-# returns a string based on the number of seconds timestamp. precision is based on the smallest step
-def timestamp(seconds):
-    converted = datetime.timedelta(seconds = seconds)
-    if seconds < 3600:
-        initial = 2
-    else:
-        initial = 0
-    return str(converted)[initial:final_timestamp_index]
-
 
 # -_-_-_-_-_-_-_-_-_-_-# Class
 graph_info_color = (255, 255, 255)
@@ -346,8 +354,8 @@ info_line_width = 1
 info_dot_radius = 3
 
 axis_color = (200, 200, 200)
-number_of_x_marks = 7 # don't set it to <= 0
-number_of_y_marks = 5 # don't set it to <= 0
+number_of_x_marks = 7  # don't set it to <= 0
+number_of_y_marks = 5  # don't set it to <= 0
 
 main_graph_x = 175
 main_graph_y = 100
@@ -355,6 +363,7 @@ main_graph_width = 800
 main_graph_height = 400
 
 y_axis_lenght = 50
+
 
 class graph():
     def __init__(self, window_of_visualization, x, y, width, height):
@@ -371,7 +380,8 @@ class graph():
         self.current_list_of_coordinates = []
         self.current_list_of_values_initial_and_final_positions = []  # (x,y) for showing information
 
-    def cursor_is_over(self, cursor_position):  # Determines if the mouse cursor position in tuple (x,y) is over the button
+    def cursor_is_over(self,
+                       cursor_position):  # Determines if the mouse cursor position in tuple (x,y) is over the button
         return cursor_is_over(self.x, self.y, self.width, self.height, cursor_position)
 
     # draws the graph
@@ -397,19 +407,21 @@ class graph():
                 time_step = (self.size_of_frame - 1) * smallest_step_infograph.step / (number_of_x_marks - 1)
                 graphic_step = self.width / (number_of_x_marks - 1)
             for position in range(number_of_x_marks):
-                pygame.draw.circle(self.window_of_visualization, info_dot_color,
-                                   (self.x + position * graphic_step, self.y + self.height), info_dot_radius)
-                text = minor_font.render(timestamp(self.initial_smallest_step_position_in_list * smallest_step_infograph.step +
-                            position * time_step), True, (0, 0, 0))
+                pygame.draw.line(self.window_of_visualization, graph_info_color,
+                                 (self.x + position * graphic_step, self.y),
+                                 (self.x + position * graphic_step, self.y + self.height), info_line_width)
+                text = minor_font.render(
+                    timestamp(self.initial_smallest_step_position_in_list * smallest_step_infograph.step +
+                              position * time_step), True, (0, 0, 0))
                 if position == 0:
                     (self.window_of_visualization).blit(text,
                                                         (self.x + position * graphic_step, self.y + self.height))
                 elif position == number_of_x_marks - 1:
                     (self.window_of_visualization).blit(text, (
-                    self.x + position * graphic_step - text.get_width(), self.y + self.height))
+                        self.x + position * graphic_step - text.get_width(), self.y + self.height))
                 else:
                     (self.window_of_visualization).blit(text, (
-                    self.x + position * graphic_step - text.get_width() / 2, self.y + self.height))
+                        self.x + position * graphic_step - text.get_width() / 2, self.y + self.height))
 
             # -_-_-_-_-_-_-_-_-_-_-# Axis base draw / Y axis part 1
             pygame.draw.rect(self.window_of_visualization, axis_color,
@@ -421,11 +433,11 @@ class graph():
                                  (main_graph_x + (i + 1 / 2) * y_axis_lenght, self.y + self.height), width=1)
                 text = font.render((list_of_infographs[selected_tab.selected_indexes[i]].name)[:3], True, (0, 0, 0))
                 (self.window_of_visualization).blit(text, (
-                main_graph_x + (i + 1 / 2) * y_axis_lenght - text.get_width() / 2, self.y + self.height))
+                    main_graph_x + (i + 1 / 2) * y_axis_lenght - text.get_width() / 2, self.y + self.height))
 
             graphic_step = self.height / (number_of_y_marks - 1)
             for position in range(number_of_y_marks):
-                pygame.draw.line(window_of_visualization, (255, 255, 255),
+                pygame.draw.line(window_of_visualization, graph_info_color,
                                  (main_graph_x, self.y + position * graphic_step),
                                  (self.x + self.width, self.y + position * graphic_step), width=1)
 
@@ -463,7 +475,8 @@ class graph():
                         highest_value = max(list_of_selected_values)
                         value_step = (highest_value - lowest_value) / (number_of_y_marks - 1)
                     else:
-                        value_step = (self.list_of_infographs[i].highest_global_value - self.list_of_infographs[i].lowest_global_value) / (number_of_y_marks - 1)
+                        value_step = (self.list_of_infographs[i].highest_global_value - self.list_of_infographs[
+                            i].lowest_global_value) / (number_of_y_marks - 1)
                     graphic_step = self.height / (number_of_y_marks - 1)
                     for position in range(number_of_y_marks):
                         if local_view:
@@ -496,7 +509,8 @@ class graph():
                         else:
                             y_coordinate = self.y + self.height - proportional_conversion(
                                 list_of_selected_values[j] - self.list_of_infographs[i].lowest_global_value,
-                                self.list_of_infographs[i].highest_global_value - self.list_of_infographs[i].lowest_global_value, self.height)
+                                self.list_of_infographs[i].highest_global_value - self.list_of_infographs[
+                                    i].lowest_global_value, self.height)
 
                         self.current_list_of_coordinates[i].append((x_coordinate, y_coordinate))
 
@@ -505,34 +519,38 @@ class graph():
 
     # -_-_-_-_-_-_-_-_-_-_-# Additional Information
     def info(self, cursor_position):  # conditional if cursor_is_over graph
-      point_distance = 1000000000
-      aux = 0
-      font3 = pygame.font.SysFont(text_font, 12)
-      closest_points = []
+        point_distance = 1000000000
+        aux = 0
+        font3 = pygame.font.SysFont(text_font, 12)
+        closest_points = []
 
-      if len(self.current_list_of_coordinates) >= 1:
-          if len(self.current_list_of_values_initial_and_final_positions) == len(self.current_list_of_coordinates):
-              for i in range(len(self.current_list_of_coordinates)):
-                  closest_points.append(0)
-                  point_distance = 1000000000
-                  aux = 0
-                  for j in range(len(self.current_list_of_coordinates[i])):  # finds closest points to the cursor
-                      aux = abs(cursor_position[0] - self.current_list_of_coordinates[i][j][0])
-                      if aux < point_distance:
-                          point_distance = aux
-                          closest_points[i] = (
-                          j, self.current_list_of_coordinates[i][j], self.list_of_infographs[i].color)
+        if len(self.current_list_of_coordinates) >= 1:
+            if len(self.current_list_of_values_initial_and_final_positions) == len(self.current_list_of_coordinates):
+                for i in range(len(self.current_list_of_coordinates)):
+                    closest_points.append(0)
+                    point_distance = 1000000000
+                    aux = 0
+                    for j in range(len(self.current_list_of_coordinates[i])):  # finds closest points to the cursor
+                        aux = abs(cursor_position[0] - self.current_list_of_coordinates[i][j][0])
+                        if aux < point_distance:
+                            point_distance = aux
+                            closest_points[i] = (
+                                j, self.current_list_of_coordinates[i][j], self.list_of_infographs[i].color)
 
-              for i in range(len(closest_points)):  # gets the information for each point and prints it
-                  info = minor_font.render(scientific_notation(self.list_of_infographs[i].list_of_values[closest_points[i][0] +
-                                                            self.current_list_of_values_initial_and_final_positions[i][0]]), True, (0, 0, 0))
-                  self.window_of_visualization.blit(info, (informatio_box_x + 275 -(info.get_width()/2), (20 * i) + (informatio_box_y + 20) -(info.get_height()/2))) #mudar ver
-                  pygame.draw.circle(self.window_of_visualization, closest_points[i][2], closest_points[i][1],
-                                     info_dot_radius)
+                for i in range(len(closest_points)):  # gets the information for each point and prints it
+                    info = minor_font.render(
+                        scientific_notation(self.list_of_infographs[i].list_of_values[closest_points[i][0] +
+                                                                                      self.current_list_of_values_initial_and_final_positions[
+                                                                                          i][0]]), True, (0, 0, 0))
+                    self.window_of_visualization.blit(info, (informatio_box_x + 275 - (info.get_width() / 2),
+                                                             (20 * i) + (informatio_box_y + 20) - (
+                                                                         info.get_height() / 2)))  # mudar ver
+                    pygame.draw.circle(self.window_of_visualization, closest_points[i][2], closest_points[i][1],
+                                       info_dot_radius)
 
-      pygame.draw.line(self.window_of_visualization, graph_info_color, (cursor_position[0], self.y),
-                       (cursor_position[0], self.y + self.height), info_line_width)
-      pygame.draw.circle(self.window_of_visualization, info_dot_color, cursor_position, info_dot_radius)
+        pygame.draw.line(self.window_of_visualization, graph_info_color, (cursor_position[0], self.y),
+                         (cursor_position[0], self.y + self.height), info_line_width)
+        pygame.draw.circle(self.window_of_visualization, info_dot_color, cursor_position, info_dot_radius)
 
 
 main_graph = graph(window_of_visualization, main_graph_x, main_graph_y, main_graph_width, main_graph_height)
@@ -540,6 +558,7 @@ main_graph = graph(window_of_visualization, main_graph_x, main_graph_y, main_gra
 # -#-#-#-#-#-#-#-#-#-#-# Bar #-#-#-#-#-#-#-#-#-#-#-#
 color_of_pointer = (0, 255, 0)
 pointer_thickness = 2
+
 
 class bar:
     def __init__(self, window, color, x, y, width, height):
@@ -575,6 +594,7 @@ pointer_pos = main_graph.x + main_graph.width - pointer_thickness
 
 # -#-#-#-#-#-#-#-#-#-#-# Checkbox #-#-#-#-#-#-#-#-#-#-#-#
 checkbox_main_color = (53, 87, 28)
+
 
 class checkbox:
     def __init__(self, window, name, x, y, size=20, state=False):
@@ -617,18 +637,19 @@ class last_value_box():
         self.last_value = last_value
 
     def draw(self):
-        if(self.last_value != None):
+        if (self.last_value != None):
             text = minor_font.render(scientific_notation(self.last_value), True, (0, 0, 0))
             (self.window).blit(text, (
-            self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
+                self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
 
 
 # -#-#-#-#-#-#-#-#-#-#-# Tab #-#-#-#-#-#-#-#-#-#-#-#
-tab_main_color = (100, 100, 100) #mudar
+tab_main_color = (100, 100, 100)  # mudar
 tab_secondary_color = (60, 60, 60)
 tab_close_color = (248, 82, 82)
 values_table_X = 1105
 values_table_Y = 90
+
 
 # Class for the tabs of diferent infographs. The class holds an index that identifies the tab, a list of the infographs
 # avilable and a list of checkboxes used to selecte wich infographs will be shown. The class has a function to create
@@ -659,9 +680,11 @@ class tab:
         for i in range(len(self.selected_indexes)):
             self.checkboxes.append(checkbox(window_of_visualization, list_of_infographs[self.selected_indexes[i]].name,
                                             informatio_box_x + 5, 20 * i + informatio_box_y + 10, 15, True))
-            self.last_value_boxes.append(last_value_box(window_of_visualization, informatio_box_x + 165, (20 * i) + (informatio_box_y + 10), 70, 20, None))
-            
-      def draw(self, cursor_position):  # Draws the Button 
+            self.last_value_boxes.append(
+                last_value_box(window_of_visualization, informatio_box_x + 165, (20 * i) + (informatio_box_y + 10), 70,
+                               20, None))
+
+    def draw(self, cursor_position):  # Draws the Button
         pygame.draw.rect(self.window, (0, 0, 0), (self.x - 2, self.y - 2, self.width + 4, self.height + 4), 0)
         pygame.draw.rect(self.window, (0, 0, 0),
                          (self.close_x - 2, self.close_y - 2, self.close_width + 4, self.close_height + 4), 0)
@@ -690,7 +713,8 @@ class tab:
                 self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
 
         if self.selected:
-            pygame.draw.rect(self.window, (100, 100, 100), (informatio_box_x, informatio_box_y, 350, 10 * len(self.checkboxes) + 80), 0) #mudar ver
+            pygame.draw.rect(self.window, (100, 100, 100),
+                             (informatio_box_x, informatio_box_y, 350, 10 * len(self.checkboxes) + 80), 0)  # mudar ver
             for c in range(len(self.checkboxes)):
                 self.checkboxes[c].draw()
             for i in range(len(self.last_value_boxes)):
@@ -732,7 +756,7 @@ for i in range(len(list_of_infographs)):
     if not smallest_step_infograph or list_of_infographs[i].step < smallest_step_infograph.step:
         smallest_step_infograph = list_of_infographs[i]
 minimum_frame_size = 3 * biggest_step / smallest_step_infograph.step
-final_timestamp_index = 9 - int(math.log10(smallest_step_infograph.step))
+final_timestamp_index = 10 - int(math.log10(smallest_step_infograph.step))
 main_graph.size_of_frame = 10 * minimum_frame_size
 list_of_tabs.append(tab(window_of_visualization, 100, 240, 100, 20, "Tab 1", True))
 selected_tab = list_of_tabs[0]
@@ -761,14 +785,16 @@ while running:
             list_of_infographs[index].list_of_values.append(value)
             Save_data(list_of_infographs[index], path_savedData)
             # calculates new global highest and lowest
-            if list_of_infographs[index].highest_global_value == None or list_of_infographs[index].highest_global_value < value:
+            if list_of_infographs[index].highest_global_value == None or list_of_infographs[
+                index].highest_global_value < value:
                 list_of_infographs[index].highest_global_value = value
-            if list_of_infographs[index].lowest_global_value == None or list_of_infographs[index].lowest_global_value > value:
+            if list_of_infographs[index].lowest_global_value == None or list_of_infographs[
+                index].lowest_global_value > value:
                 list_of_infographs[index].lowest_global_value = value
     except serial.SerialException:
         print("Disconnected")
         serial_COM_port = None
-        connection_button.color = (248, 82, 82)
+        connection_button.color = connection_button_color2
         connection_button.text = message_connection_button_4
         main_graph.x = main_graph_x
         main_graph.width = main_graph_width
@@ -790,7 +816,7 @@ while running:
                 if i == 0:
                     value = random.randint(0, 1)
                 if i == 1:
-                    value = 100*b + random.randrange(-100000, 100000, 1)
+                    value = 100 * b + random.randrange(-100000, 100000, 1)
                 if i == 2:
                     value = b + math.cos(random.randrange(-1000, 1000, 1) / 300)
                 if i == 3:
@@ -801,9 +827,11 @@ while running:
                     value = b + random.randint(1, 10) ** (-1)
                 list_of_infographs[i].list_of_values.append(value)
                 # calculates new global highest and lowest
-                if list_of_infographs[i].highest_global_value == None or list_of_infographs[i].highest_global_value < value:
+                if list_of_infographs[i].highest_global_value == None or list_of_infographs[
+                    i].highest_global_value < value:
                     list_of_infographs[i].highest_global_value = value
-                if list_of_infographs[i].lowest_global_value == None or list_of_infographs[i].lowest_global_value > value:
+                if list_of_infographs[i].lowest_global_value == None or list_of_infographs[
+                    i].lowest_global_value > value:
                     list_of_infographs[i].lowest_global_value = value
 
     # -_-_-_-_-_-_-_-_-_-_-# User commands
@@ -829,13 +857,13 @@ while running:
             if connection_button.cursor_is_over(cursor_position) and not serial_COM_port:
                 last_text = connection_button.text
                 connection_button.text = message_connection_button_1
-                connection_button.color = (255, 255, 0)
+                connection_button.color = connection_button_color1 ####### arrumar definição do draw para desenhar amarelo
                 connection_button.draw(cursor_position)
                 pygame.display.update()
                 connect()
                 path_savedData = CreateArch(list_of_infographs)
                 if serial_COM_port:
-                    connection_button.color = (97, 205, 97)
+                    connection_button.color = connection_button_color
                     connection_button.text = message_connection_button_2
                     main_graph.size_of_frame = 10 * minimum_frame_size
                     list_of_tabs.append(tab(window_of_visualization, 10, 150, 100, 20, "Tab 1", True))
@@ -847,7 +875,7 @@ while running:
                     main_bar.x = main_graph.x
                     main_bar.width = main_graph.width
                 else:
-                    connection_button.color = (248, 82, 82)
+                    connection_button.color = connection_button_color2
                     if last_text != message_connection_button_30:
                         connection_button.text = message_connection_button_30
                     else:  # for visual confirmation
@@ -884,7 +912,7 @@ while running:
 
             # -_-_-_-_-_-_-_-_-_-_-# User commands / Tab management
             # creates a new tab
-            if new_tab_button.cursor_is_over(cursor_position) and len(list_of_tabs):
+            if new_tab_button.cursor_is_over(cursor_position) and len(list_of_tabs) and len(list_of_tabs) < max_number_of_tabs:
                 list_of_tabs.append(tab(window_of_visualization, 10, list_of_tabs[-1].y + 40, 100, 20,
                                         "Tab " + str(len(list_of_tabs) + 1)))
 
@@ -905,7 +933,7 @@ while running:
                     if test.selected:
                         list_of_tabs[0].selected = True
                         selected_tab = list_of_tabs[0]
-                    for j in range( len(list_of_tabs) - t):
+                    for j in range(len(list_of_tabs) - t):
                         list_of_tabs[t + j].text = "Tab " + str(t + j + 1)
                         list_of_tabs[t + j].y = list_of_tabs[t + j].y - 40
                         list_of_tabs[t + j].close_y = list_of_tabs[t + j].close_y - 40
@@ -928,6 +956,8 @@ while running:
                         main_bar.width = main_graph.width
                         selected_tab.checkboxes[c].state = not selected_tab.checkboxes[c].state
 
+
+        if button_pressed[0]:
             # -_-_-_-_-_-_-_-_-_-_-# User commands / Bar management
             # checks if user clicks the bar
             if smallest_step_infograph != None:
@@ -994,15 +1024,18 @@ while running:
 
     main_graph.draw()
     main_bar.draw()
-    
+
     # -_-_-_-_-_-_-_-_-_-_-# User interactives
     draws_buttons(cursor_position)
     pygame.draw.rect(window_of_visualization, (120, 120, 120), (5, 140, 150, 400), 0)  # precisa esconder guias apagadas
     for t in list_of_tabs:
         t.draw(cursor_position)
-    
+
     if main_graph.cursor_is_over(cursor_position):
+        pygame.mouse.set_visible(False)
         main_graph.info(cursor_position)
+    else:
+        pygame.mouse.set_visible(True)
 
     # updates pointer position while more values are taken into account
     main_bar.update_pointer()
