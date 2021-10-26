@@ -247,7 +247,7 @@ def draws_buttons(cursor_position):
 # -#-#-#-#-#-#-#-#-#-#-# Infograph Class #-#-#-#-#-#-#-#-#-#-#-#
 # Information holder for individual graphs
 class infograph():
-    def __init__(self, name, step, color, unit):
+    def __init__(self, name, step, color, unit, alert_higher = None, alert_lower = None):
         self.name = name
         self.step = step
         self.unit = unit
@@ -255,8 +255,10 @@ class infograph():
         self.list_of_values = []
         self.highest_global_value = None
         self.lowest_global_value = None
+        self.alert_higher = alert_higher
+        self.alert_lower = alert_lower
 
-
+alert_time_on_screen = 1 # seconds
 list_of_infographs = []
 
 # -#-#-#-#-#-#-#-#-#-#-# Connection #-#-#-#-#-#-#-#-#-#-#-#
@@ -324,9 +326,19 @@ def connect():
                             name = input_list[0]
                             step = float(input_list[1])
                             unit = input_list[2]
+                            alert_higher = input_list[3]
+                            if alert_higher == "":
+                                alert_higher = None
+                            else:
+                                alert_higher = float(alert_higher)
+                            alert_lower = input_list[4]
+                            if alert_lower == "":
+                                alert_lower = None
+                            else:
+                                alert_lower = float(alert_lower)
                             number = number % len(list_of_colors_for_lines)  # makes sure that the color is in the list
                             color = list_of_colors_for_lines[number]
-                            list_of_infographs.append(infograph(name, step, color, unit))
+                            list_of_infographs.append(infograph(name, step, color, unit, alert_higher, alert_lower))
 
                             if not biggest_step or step > biggest_step:
                                 biggest_step = step
@@ -612,7 +624,7 @@ class checkbox:
 
         pygame.draw.rect(self.window, self.color, (self.x, self.y, self.size, self.size), 0)
 
-        text = font.render(self.name, True, (0, 0, 0))
+        text = font.render(self.name[:16], True, (0, 0, 0))
         (self.window).blit(text, (self.x + (self.size + 10), self.y + (self.size / 2 - text.get_height() / 2)))
 
         if self.state:
@@ -636,9 +648,15 @@ class last_value_box():
         self.height = height
         self.last_value = last_value
 
+        self.show_alert_values_times = 0
+
     def draw(self):
         if (self.last_value != None):
-            text = minor_font.render(scientific_notation(self.last_value), True, (0, 0, 0))
+            color = (0, 0, 0)
+            if self.show_alert_values_times > 0:
+                color = (248, 42, 42)
+                self.show_alert_values_times -= 1
+            text = minor_font.render(scientific_notation(self.last_value), True, color)
             (self.window).blit(text, (
                 self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
 
@@ -684,7 +702,7 @@ class tab:
                 last_value_box(window_of_visualization, informatio_box_x + 165, (20 * i) + (informatio_box_y + 10), 70,
                                20, None))
 
-    def draw(self, cursor_position):  # Draws the Button
+    def draw(self, cursor_position):  # Draws the tab
         pygame.draw.rect(self.window, (0, 0, 0), (self.x - 2, self.y - 2, self.width + 4, self.height + 4), 0)
         pygame.draw.rect(self.window, (0, 0, 0),
                          (self.close_x - 2, self.close_y - 2, self.close_width + 4, self.close_height + 4), 0)
@@ -708,7 +726,7 @@ class tab:
                                   self.y + (self.close_height / 2 - text.get_height() / 2)))
 
         if self.text != '':
-            text = font.render(self.text, True, (0, 0, 0))
+            text = font.render(self.text[:10], True, (0, 0, 0))
             (self.window).blit(text, (
                 self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
 
@@ -738,11 +756,11 @@ selected_tab = None
 dummy_infograph = True
 last_times = []
 a = 0
-list_of_infographs.append(infograph("D1", 0.5, list_of_colors_for_lines[0], "d1"))
+list_of_infographs.append(infograph("D1", 0.5, list_of_colors_for_lines[0], "d1", 500, 0))
 list_of_infographs.append(infograph("D2", 1.5, list_of_colors_for_lines[1], "d2"))
 list_of_infographs.append(infograph("D3", 0.5, list_of_colors_for_lines[2], "d3"))
-list_of_infographs.append(infograph("D4", 0.1, list_of_colors_for_lines[3], "d4"))
-list_of_infographs.append(infograph("D5", 1, list_of_colors_for_lines[4], "d5"))
+list_of_infographs.append(infograph("D4", 0.1, list_of_colors_for_lines[3], "d4", 1.5))
+list_of_infographs.append(infograph("D5", 1, list_of_colors_for_lines[4], "d5", None, 10000))
 list_of_infographs.append(infograph("D6", 2, list_of_colors_for_lines[5], "d6"))
 for i in range(len(list_of_infographs)):
     last_times.append(0)
@@ -791,7 +809,7 @@ while running:
             if list_of_infographs[index].lowest_global_value == None or list_of_infographs[
                 index].lowest_global_value > value:
                 list_of_infographs[index].lowest_global_value = value
-    except serial.SerialException:
+    except (ValueError, serial.SerialException):
         print("Disconnected")
         serial_COM_port = None
         connection_button.color = connection_button_color2
@@ -844,7 +862,7 @@ while running:
             running = False
 
         if event.type == pygame.MOUSEWHEEL:
-            if main_graph.size_of_frame:
+            if main_graph.size_of_frame and (serial_COM_port or dummy_infograph):
                 # proportional growth
                 main_graph.size_of_frame += (-1) * event.y * (1 + int(main_graph.size_of_frame / 10))
                 if main_graph.size_of_frame < minimum_frame_size:
@@ -1019,15 +1037,17 @@ while running:
         # determines the last value and writes it in the box
         for i in range(len(selected_tab.last_value_boxes)):
             if len(list_of_infographs[i].list_of_values) > 1:
-                selected_tab.last_value_boxes[i].last_value = round(list_of_infographs[i].list_of_values[-1], 2)
-                selected_tab.last_value_boxes[i].draw()
+                value = list_of_infographs[i].list_of_values[-1]
+                selected_tab.last_value_boxes[i].last_value = value
+                if (list_of_infographs[i].alert_higher and value > list_of_infographs[i].alert_higher)  or (list_of_infographs[i].alert_lower and value < list_of_infographs[i].alert_lower):
+                    selected_tab.last_value_boxes[i].show_alert_values_times = 1 + int(round((alert_time_on_screen / list_of_infographs[i].step)))
 
     main_graph.draw()
     main_bar.draw()
 
     # -_-_-_-_-_-_-_-_-_-_-# User interactives
     draws_buttons(cursor_position)
-    pygame.draw.rect(window_of_visualization, (120, 120, 120), (5, 140, 150, 400), 0)  # precisa esconder guias apagadas
+    pygame.draw.rect(window_of_visualization, (120, 120, 120), (5, 140, 150, 400), 0)
     for t in list_of_tabs:
         t.draw(cursor_position)
 
