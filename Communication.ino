@@ -1,15 +1,15 @@
-#define quantity_of_graphs 6 //a linked list would make adding a graph more intuitive
+#define quantity_of_graphs 6 //TODO: transformar as varias listas em uma lista de structs
 
 String graphs[quantity_of_graphs]; //names
-float steps[quantity_of_graphs]; //in seconds
+double steps[quantity_of_graphs]; //in seconds
 String max_value_alert[quantity_of_graphs];
 String min_value_alert[quantity_of_graphs];
 String uom[quantity_of_graphs]; //unit of measurement
 unsigned long last_times[quantity_of_graphs];
 
 int pot = A0;
-float reading;
-float treated_reading; //remove this
+double reading;
+double treated_reading; //remove this
 String received_string;
 
 void setup() { 
@@ -22,30 +22,36 @@ void setup() {
   graphs[0] = "Velocity";
   steps[0] = 2.3;
   uom[0] = "km/h";
-  max_value_alert[0] = "500";
+  max_value_alert[0] = "900";
   min_value_alert[0] = "0";
 
   graphs[1] = "Current";
   steps[1] = 0.5;
   uom[1] = "mA";
+  max_value_alert[1] = "6";
+  min_value_alert[1] = "4";
   
   graphs[2] = "RPM";
   steps[2] = 1;
   uom[2] = "Hz";
+  max_value_alert[2] = "6";
+  min_value_alert[2] = "4.5";
 
   graphs[3] = "A";
   steps[3] = 0.7;
   uom[3] = "ua";
-  max_value_alert[3] = "1.5";
+  max_value_alert[3] = "0.7";
+  min_value_alert[3] = "0.5";
 
   graphs[4] = "B";
   steps[4] = 1.7;
   uom[4] = "ub";
-  min_value_alert[4] = "10000";
+  max_value_alert[4] = "5000";
 
-  graphs[5] = "TestName@#$%&";
+  graphs[5] = "NomeGrandeComoReferencia";
   steps[5] = 0.3;
   uom[5] = "uc";
+  max_value_alert[4] = "25";
 
   for(int i = 0; i < quantity_of_graphs; i++){
     last_times[i] = 0;
