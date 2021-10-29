@@ -1,63 +1,54 @@
-#define quantity_of_graphs 6 //TODO: transformar as varias listas em uma lista de structs
+int capacity = 20;
 
-String graphs[quantity_of_graphs]; //names
-double steps[quantity_of_graphs]; //in seconds
-String max_value_alert[quantity_of_graphs];
-String min_value_alert[quantity_of_graphs];
-String uom[quantity_of_graphs]; //unit of measurement
-unsigned long last_times[quantity_of_graphs];
+struct infograph{
+  String nameOfGraph;
+  String unityOfMeasurement;
+  double stepOfGraph;
+  String maximumValueAlert; // may be null
+  String minimumValueAlert;
+  unsigned long lastCollectingTime;
+};
+
+typedef struct infograph infograph;
+
+infograph** listOfInfographs = (infograph**) calloc(capacity, sizeof(infograph*));
+
+void addInfograph(String nameOfGraph, String unityOfMeasurement, double stepOfGraph, String maximumValueAlert = "", String minimumValueAlert = ""){
+  int i = 0;
+  while(listOfInfographs[i] != NULL){
+    i++;
+    if(i >= capacity){
+      return;
+    }
+  }
+  infograph* added = calloc(1, sizeof(infograph));
+  added->nameOfGraph = nameOfGraph;
+  added->unityOfMeasurement = unityOfMeasurement;
+  added->stepOfGraph = stepOfGraph;
+  added->maximumValueAlert = maximumValueAlert;
+  added->minimumValueAlert = minimumValueAlert;
+  listOfInfographs[i] = added;
+}
+
+String infographsInfo(int i){
+  return listOfInfographs[i]->nameOfGraph + ";" + listOfInfographs[i]->stepOfGraph + ";" + 
+  listOfInfographs[i]->unityOfMeasurement + ";" + listOfInfographs[i]->maximumValueAlert + ";" + listOfInfographs[i]->minimumValueAlert;
+}
 
 int pot = A0;
 double reading;
-double treated_reading; //remove this
+double treated_reading; ///////////////////////////////////////////////////////remove this
 String received_string;
 
 void setup() { 
+  //addInfograph(String nameOfGraph, String unityOfMeasurement, double stepOfGraph, String maximumValueAlert = "", String minimumValueAlert = "")
+  addInfograph("Velocity", "km/h", 2.3, "900", "0");
+  addInfograph("Current", "mA", 0.5, "6", "4");
+  addInfograph("RPM", "Hz", 1, "6", "4.5");
+  addInfograph("Temperature", "ºC", 0.7, "0.7", "0.5");
+  addInfograph("Inclinação", "°", 1.7, "5000");
+  addInfograph("NomeGrandeComoReferencia", "PassoGrandeComoReferencia", 0.3, "25");
 
-  for(int i = 0; i < quantity_of_graphs; i++){
-    max_value_alert[i] = '\0';
-    min_value_alert[i] = '\0';
-  }
-
-  graphs[0] = "Velocity";
-  steps[0] = 2.3;
-  uom[0] = "km/h";
-  max_value_alert[0] = "900";
-  min_value_alert[0] = "0";
-
-  graphs[1] = "Current";
-  steps[1] = 0.5;
-  uom[1] = "mA";
-  max_value_alert[1] = "6";
-  min_value_alert[1] = "4";
-  
-  graphs[2] = "RPM";
-  steps[2] = 1;
-  uom[2] = "Hz";
-  max_value_alert[2] = "6";
-  min_value_alert[2] = "4.5";
-
-  graphs[3] = "A";
-  steps[3] = 0.7;
-  uom[3] = "ua";
-  max_value_alert[3] = "0.7";
-  min_value_alert[3] = "0.5";
-
-  graphs[4] = "B";
-  steps[4] = 1.7;
-  uom[4] = "ub";
-  max_value_alert[4] = "5000";
-
-  graphs[5] = "NomeGrandeComoReferencia";
-  steps[5] = 0.3;
-  uom[5] = "uc";
-  max_value_alert[4] = "25";
-
-  for(int i = 0; i < quantity_of_graphs; i++){
-    last_times[i] = 0;
-  }
-
-  
   Serial.begin(9600);
   while(Serial.available() > 0) {
     char t = Serial.read();
@@ -69,16 +60,18 @@ void loop() {
     received_string = Serial.readStringUntil('\n');
     if(received_string == "connect"){
       Serial.println("begin");
-      for(int i = 0; i < quantity_of_graphs; i++){
-        Serial.println(graphs[i] + ";" + steps[i] + ";" + uom[i] + ";" + max_value_alert[i] + ";" + min_value_alert[i]);
+      for(int i = 0; i < capacity && listOfInfographs[i] != NULL; i++){
+        Serial.println(infographsInfo(i));
       }
       Serial.println("end");
     }
   }
   
   reading = analogRead(pot);
-  for(int i = 0; i < quantity_of_graphs; i++){
-    if(millis() - last_times[i] >= steps[i]*1000){
+  unsigned long currentTime = millis();
+  for(int i = 0; i < capacity && listOfInfographs[i] != NULL; i++){
+    if(currentTime - listOfInfographs[i]->lastCollectingTime >= 1000 * listOfInfographs[i]->stepOfGraph){
+      listOfInfographs[i]->lastCollectingTime = currentTime;
 
       //trade for CAN entries
       if(i == 0){
@@ -101,8 +94,7 @@ void loop() {
       }
       ///////////////////////////
 
-      Serial.println((String)i + ";" + treated_reading);
-      last_times[i] = millis();
+      Serial.println((String)i + ";" + treated_reading + ";");
     }
   }
 }
