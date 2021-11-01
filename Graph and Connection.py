@@ -204,7 +204,7 @@ message_connection_button_30 = "Verify Link"
 message_connection_button_31 = "Error"
 message_connection_button_4 = "Disconnected"
 connection_button_color = (97, 205, 97)
-connection_button_color1 = (255, 189, 0)
+connection_button_color1 = (255, 255, 105)
 connection_button_color2 = (248, 82, 82)
 connection_button = button(window_of_visualization, connection_button_color, 30, 30, 100, 20,
                            message_connection_button_0)
@@ -876,7 +876,7 @@ while running:
             if connection_button.cursor_is_over(cursor_position) and not serial_COM_port:
                 last_text = connection_button.text
                 connection_button.text = message_connection_button_1
-                connection_button.color = connection_button_color1 ####### arrumar definição do draw para desenhar amarelo
+                connection_button.color = connection_button_color1 
                 connection_button.draw(cursor_position)
                 pygame.display.update()
                 connect()
