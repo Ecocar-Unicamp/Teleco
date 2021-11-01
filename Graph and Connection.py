@@ -74,7 +74,7 @@ version_text_position = (0, y_size_of_window - 16)
 window_of_visualization.blit(version_text, version_text_position)
 
 informatio_box_x = 1000
-informatio_box_y = 100
+informatio_box_y = 90
 
 
 # -#-#-#-#-#-#-#-#-#-#-# Saving the data #-#-#-#-#-#-#-#-#-#-#-#
@@ -539,6 +539,8 @@ class graph():
 
         if len(self.current_list_of_coordinates) >= 1:
             if len(self.current_list_of_values_initial_and_final_positions) == len(self.current_list_of_coordinates):
+                info_box_text2 = font.render("Cursor", True, (0, 0, 0))
+                self.window_of_visualization.blit(info_box_text2, (informatio_box_x + 250, informatio_box_y + 3))
                 for i in range(len(self.current_list_of_coordinates)):
                     closest_points.append(0)
                     point_distance = 1000000000
@@ -556,11 +558,15 @@ class graph():
                                                                                       self.current_list_of_values_initial_and_final_positions[
                                                                                           i][0]]), True, (0, 0, 0))
                     self.window_of_visualization.blit(info, (informatio_box_x + 275 - (info.get_width() / 2),
-                                                             (20 * i) + (informatio_box_y + 20) - (
+                                                             (20 * i) + (informatio_box_y + 30) - (
                                                                          info.get_height() / 2)))  # mudar ver
                     pygame.draw.circle(self.window_of_visualization, closest_points[i][2], closest_points[i][1],
                                        info_dot_radius)
 
+                info_box_text3 = font.render("Time", True, (0, 0, 0))
+                self.window_of_visualization.blit(info_box_text3, (informatio_box_x + 330, informatio_box_y + 3))
+                time_info = minor_font.render(timestamp(self.initial_smallest_step_position_in_list * smallest_step_infograph.step + (cursor_position[0] - self.x)*(((self.size_of_frame - 1) * smallest_step_infograph.step)/self.width)), True, (0, 0, 0))
+                self.window_of_visualization.blit(time_info, (informatio_box_x + 350 - (time_info.get_width() / 2), (informatio_box_y + 30) - (time_info.get_height() / 2)))
         pygame.draw.line(self.window_of_visualization, graph_info_color, (cursor_position[0], self.y),
                          (cursor_position[0], self.y + self.height), info_line_width)
         pygame.draw.circle(self.window_of_visualization, info_dot_color, cursor_position, info_dot_radius)
@@ -698,9 +704,9 @@ class tab:
 
         for i in range(len(self.selected_indexes)):
             self.checkboxes.append(checkbox(window_of_visualization, list_of_infographs[self.selected_indexes[i]].name,
-                                            informatio_box_x + 5, 20 * i + informatio_box_y + 10, 15, True))
+                                            informatio_box_x + 5, 20 * i + informatio_box_y + 20, 15, True))
             self.last_value_boxes.append(
-                last_value_box(window_of_visualization, informatio_box_x + 165, (20 * i) + (informatio_box_y + 10), 70,
+                last_value_box(window_of_visualization, informatio_box_x + 165, (20 * i) + (informatio_box_y + 20), 70,
                                20, None))
 
     def draw(self, cursor_position):  # Draws the tab
@@ -733,7 +739,9 @@ class tab:
 
         if self.selected:
             pygame.draw.rect(self.window, (100, 100, 100),
-                             (informatio_box_x, informatio_box_y, 350, 10 * len(self.checkboxes) + 80), 0)  # mudar ver
+                             (informatio_box_x, informatio_box_y, 400, 10 * len(self.checkboxes) + 80), 0)  # mudar ver
+            info_box_text1 = font.render("Last", True, (0, 0, 0))
+            self.window.blit(info_box_text1, (informatio_box_x + 180, informatio_box_y+3))
             for c in range(len(self.checkboxes)):
                 self.checkboxes[c].draw()
             for i in range(len(self.last_value_boxes)):
@@ -876,7 +884,7 @@ while running:
             if connection_button.cursor_is_over(cursor_position) and not serial_COM_port:
                 last_text = connection_button.text
                 connection_button.text = message_connection_button_1
-                connection_button.color = connection_button_color1 
+                connection_button.color = connection_button_color1
                 connection_button.draw(cursor_position)
                 pygame.display.update()
                 connect()
