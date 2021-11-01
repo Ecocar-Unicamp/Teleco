@@ -167,7 +167,7 @@ class button():
     def __init__(self, window, color, x, y, width, height, text=''):
         self.window = window
         self.color = color
-        self.secondary_color = tuple(map(lambda i: i - 20, color))
+        self.secondary_color = tuple(map(lambda i: i - 20 if i>20 else 0, color))
         self.x = x
         self.y = y
         self.width = width
@@ -178,6 +178,7 @@ class button():
 
     def draw(self, cursor_position):
         color_used = self.color
+        self.secondary_color = tuple(map(lambda i: i - 20 if i>20 else 0, self.color))
         if self.cursor_is_over(cursor_position):
             color_used = self.secondary_color
 
