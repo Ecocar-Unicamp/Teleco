@@ -63,8 +63,8 @@ minor_font = pygame.font.SysFont(text_font, 12)
 
 pygame.display.set_caption("Telemetry Plotter")  # program's name
 try:
-    Icon = pygame.image.load("Logo_blurange.png")  # program's icon image
-    pygame.display.set_icon(Icon)
+    icon = pygame.image.load("Logo_blurange.png")  # program's icon image
+    pygame.display.set_icon(icon) ########## trocar pelo da teleco
 except FileNotFoundError:
     print("No image for Logo found")
 
@@ -739,7 +739,7 @@ class tab:
 
         if self.selected:
             pygame.draw.rect(self.window, (100, 100, 100),
-                             (informatio_box_x, informatio_box_y, 400, 10 * len(self.checkboxes) + 80), 0)  # mudar ver
+                             (informatio_box_x, informatio_box_y, 400, 10 * len(self.checkboxes) + 80), 0)  ###### mudar ver
             info_box_text1 = font.render("Last", True, (0, 0, 0))
             self.window.blit(info_box_text1, (informatio_box_x + 180, informatio_box_y+3))
             for c in range(len(self.checkboxes)):
@@ -757,6 +757,8 @@ class tab:
 
 list_of_tabs = []
 selected_tab = None
+tab_number = 1
+file_name = "predefined tabs.txt"
 
 # -#-#-#-#-#-#-#-#-#-#-# Dummy Data Generator #-#-#-#-#-#-#-#-#-#-#-#
 # for testing without serial, just uncomment this part
@@ -893,12 +895,34 @@ while running:
                     connection_button.color = connection_button_color
                     connection_button.text = message_connection_button_2
                     main_graph.size_of_frame = 10 * minimum_frame_size
-                    list_of_tabs.append(tab(window_of_visualization, 10, 150, 100, 20, "Tab 1", True))
+
+                    try:
+                        with open(file_name, "r") as file:
+                            for line in file:
+                                split_line = line.split(";")
+                                if len(split_line) and split_line[0] != "" and len(list_of_tabs) < max_number_of_tabs:
+                                    if len(list_of_tabs):
+                                        list_of_tabs.append(tab(window_of_visualization, 10, list_of_tabs[-1].y + 40, 100, 20, split_line[0], False))
+                                    else:
+                                        list_of_tabs.append(tab(window_of_visualization, 10, 150, 100, 20, split_line[0], True))
+                                    for j in range(len(split_line) - 1):
+                                        if j + 1 < len(list_of_tabs[-1].checkboxes):
+                                            try:
+                                                list_of_tabs[-1].checkboxes[j].state = bool(int(split_line[j + 1]))
+                                                if list_of_tabs[-1].checkboxes[j].state == False:
+                                                    list_of_tabs[-1].selected_indexes.remove(j)
+                                            except ValueError:
+                                                break
+                    except FileNotFoundError:
+                        print("No predefined tabs")
+                    if not len(list_of_tabs):
+                        list_of_tabs.append(tab(window_of_visualization, 10, 150, 100, 20, "Tab " + str(tab_number), True))
+                        tab_number += 1
                     selected_tab = list_of_tabs[0]
 
                     # configurates the y axis
-                    main_graph.x += len(list_of_infographs) * y_axis_lenght
-                    main_graph.width -= len(list_of_infographs) * y_axis_lenght
+                    main_graph.x += len(selected_tab.selected_indexes) * y_axis_lenght
+                    main_graph.width -= len(selected_tab.selected_indexes) * y_axis_lenght
                     main_bar.x = main_graph.x
                     main_bar.width = main_graph.width
                 else:
@@ -941,7 +965,8 @@ while running:
             # creates a new tab
             if new_tab_button.cursor_is_over(cursor_position) and len(list_of_tabs) and len(list_of_tabs) < max_number_of_tabs:
                 list_of_tabs.append(tab(window_of_visualization, 10, list_of_tabs[-1].y + 40, 100, 20,
-                                        "Tab " + str(len(list_of_tabs) + 1)))
+                                        "Tab " + str(tab_number)))
+                tab_number += 1
 
             # checks if a tab is selected or closed
             for t in range(len(list_of_tabs)):
@@ -961,7 +986,6 @@ while running:
                         list_of_tabs[0].selected = True
                         selected_tab = list_of_tabs[0]
                     for j in range(len(list_of_tabs) - t):
-                        list_of_tabs[t + j].text = "Tab " + str(t + j + 1)
                         list_of_tabs[t + j].y = list_of_tabs[t + j].y - 40
                         list_of_tabs[t + j].close_y = list_of_tabs[t + j].close_y - 40
                     break
@@ -984,7 +1008,7 @@ while running:
                         selected_tab.checkboxes[c].state = not selected_tab.checkboxes[c].state
 
 
-        if button_pressed[0]:
+        if button_pressed[0] and (serial_COM_port or dummy_infograph):
             # -_-_-_-_-_-_-_-_-_-_-# User commands / Bar management
             # checks if user clicks the bar
             if smallest_step_infograph != None:
@@ -1003,7 +1027,7 @@ while running:
 
         # -_-_-_-_-_-_-_-_-_-_-# User commands / Displacement
         # displaces the graph
-        if event.type == pygame.KEYDOWN:
+        if event.type == pygame.KEYDOWN and (serial_COM_port or dummy_infograph):
             live_data = False
             freezing_button.text = message_freezing_button_1
             if event.key == pygame.K_LEFT:
@@ -1013,11 +1037,11 @@ while running:
             aovivo = False
 
     # displaces the graph
-    if key_pressed[pygame.K_UP]:
+    if key_pressed[pygame.K_UP] and (serial_COM_port or dummy_infograph):
         live_data = False
         freezing_button.text = message_freezing_button_1
         main_graph.initial_smallest_step_position_in_list += 1
-    if key_pressed[pygame.K_DOWN]:
+    if key_pressed[pygame.K_DOWN] and (serial_COM_port or dummy_infograph):
         live_data = False
         freezing_button.text = message_freezing_button_1
         main_graph.initial_smallest_step_position_in_list -= 1
