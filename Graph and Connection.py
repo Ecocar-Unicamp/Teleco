@@ -6,7 +6,9 @@ import time
 import math
 import os
 
-# import classes
+# This code was made in 2020 - 2021 by Ecocar UNICAMP
+# Authors: Daniel Carvalho Frulane de Souza, Nuno Kuschnaroff Barbosa,
+# Guilherme Magalhães Soares and Igor Oura Belieri
 
 program_version = "BETA"  # 1.0
 
@@ -34,7 +36,6 @@ criar atalho
 
 '''
 -- fazer até v1
-desenhar necessário básico antes de conectar - depois de decidir a aparencia
 parametrizar tudo!!!!
 deixar explicação
 -- futuros pontos de melhoria:
@@ -73,8 +74,8 @@ version_text = font.render("Telemetry Plotter  Version: " + str(program_version)
 version_text_position = (0, y_size_of_window - 16)
 window_of_visualization.blit(version_text, version_text_position)
 
-informatio_box_x = 1000
-informatio_box_y = 90
+information_box_x = 1000
+information_box_y = 90
 
 
 # -#-#-#-#-#-#-#-#-#-#-# Saving the data #-#-#-#-#-#-#-#-#-#-#-#
@@ -537,36 +538,34 @@ class graph():
         font3 = pygame.font.SysFont(text_font, 12)
         closest_points = []
 
-        if len(self.current_list_of_coordinates) >= 1:
-            if len(self.current_list_of_values_initial_and_final_positions) == len(self.current_list_of_coordinates):
-                info_box_text2 = font.render("Cursor", True, (0, 0, 0))
-                self.window_of_visualization.blit(info_box_text2, (informatio_box_x + 250, informatio_box_y + 3))
-                for i in range(len(self.current_list_of_coordinates)):
-                    closest_points.append(0)
-                    point_distance = 1000000000
-                    aux = 0
-                    for j in range(len(self.current_list_of_coordinates[i])):  # finds closest points to the cursor
-                        aux = abs(cursor_position[0] - self.current_list_of_coordinates[i][j][0])
-                        if aux < point_distance:
-                            point_distance = aux
-                            closest_points[i] = (
-                                j, self.current_list_of_coordinates[i][j], self.list_of_infographs[i].color)
+        if len(self.current_list_of_coordinates) and len(self.current_list_of_values_initial_and_final_positions) == len(self.current_list_of_coordinates):
+            info_box_text2 = font.render("Cursor", True, (0, 0, 0))
+            self.window_of_visualization.blit(info_box_text2, (information_box_x + 250, information_box_y + 3))
+            incrementor = 0
+            for index in selected_tab.selected_indexes:
+                closest_points.append(0)
+                point_distance = 1000000000
+                aux = 0
+                for j in range(len(self.current_list_of_coordinates[incrementor])):  # finds closest points to the cursor
+                    aux = abs(cursor_position[0] - self.current_list_of_coordinates[incrementor][j][0])
+                    if aux < point_distance:
+                        point_distance = aux
+                        closest_points[incrementor] = (j, self.current_list_of_coordinates[incrementor][j], self.list_of_infographs[incrementor].color)
+                pygame.draw.circle(self.window_of_visualization, closest_points[incrementor][2], closest_points[incrementor][1],
+                                   info_dot_radius)
 
-                for i in range(len(closest_points)):  # gets the information for each point and prints it
-                    info = minor_font.render(
-                        scientific_notation(self.list_of_infographs[i].list_of_values[closest_points[i][0] +
-                                                                                      self.current_list_of_values_initial_and_final_positions[
-                                                                                          i][0]]), True, (0, 0, 0))
-                    self.window_of_visualization.blit(info, (informatio_box_x + 275 - (info.get_width() / 2),
-                                                             (20 * i) + (informatio_box_y + 30) - (
-                                                                         info.get_height() / 2)))  # mudar ver
-                    pygame.draw.circle(self.window_of_visualization, closest_points[i][2], closest_points[i][1],
-                                       info_dot_radius)
+                info = minor_font.render(
+                scientific_notation(list_of_infographs[index].list_of_values[closest_points[incrementor][0] +
+                                    self.current_list_of_values_initial_and_final_positions[incrementor][0]]), True, (0, 0, 0))
+                self.window_of_visualization.blit(info, (information_box_x + 275 - (info.get_width() / 2),
+                                                         (20 * index) + (information_box_y + 30) - (
+                                                                 info.get_height() / 2)))
+                incrementor += 1
 
-                info_box_text3 = font.render("Time", True, (0, 0, 0))
-                self.window_of_visualization.blit(info_box_text3, (informatio_box_x + 330, informatio_box_y + 3))
-                time_info = minor_font.render(timestamp(self.initial_smallest_step_position_in_list * smallest_step_infograph.step + (cursor_position[0] - self.x)*(((self.size_of_frame - 1) * smallest_step_infograph.step)/self.width)), True, (0, 0, 0))
-                self.window_of_visualization.blit(time_info, (informatio_box_x + 350 - (time_info.get_width() / 2), (informatio_box_y + 30) - (time_info.get_height() / 2)))
+            info_box_text3 = font.render("Time", True, (0, 0, 0))
+            self.window_of_visualization.blit(info_box_text3, (information_box_x + 330, information_box_y + 3))
+            time_info = minor_font.render(timestamp(self.initial_smallest_step_position_in_list * smallest_step_infograph.step + (cursor_position[0] - self.x)*(((self.size_of_frame - 1) * smallest_step_infograph.step)/self.width)), True, (0, 0, 0))
+            self.window_of_visualization.blit(time_info, (information_box_x + 350 - (time_info.get_width() / 2), (information_box_y + 30) - (time_info.get_height() / 2)))
         pygame.draw.line(self.window_of_visualization, graph_info_color, (cursor_position[0], self.y),
                          (cursor_position[0], self.y + self.height), info_line_width)
         pygame.draw.circle(self.window_of_visualization, info_dot_color, cursor_position, info_dot_radius)
@@ -616,14 +615,16 @@ checkbox_main_color = (53, 87, 28)
 
 
 class checkbox:
-    def __init__(self, window, name, x, y, size=20, state=False):
+    def __init__(self, window, infog, x, y, size=20, state=False):
         self.window = window
         self.x = x
         self.y = y
         self.size = size
         self.color = checkbox_main_color
 
-        self.name = name
+        self.name = infog.name
+        self.text_color = infog.color
+        self.unit = infog.unit
         self.state = state
 
     def draw(self):
@@ -631,7 +632,7 @@ class checkbox:
 
         pygame.draw.rect(self.window, self.color, (self.x, self.y, self.size, self.size), 0)
 
-        text = font.render(self.name[:16], True, (0, 0, 0))
+        text = font.render(self.name[:11] + " [" + self.unit[:3] + "]", True, self.text_color)
         (self.window).blit(text, (self.x + (self.size + 10), self.y + (self.size / 2 - text.get_height() / 2)))
 
         if self.state:
@@ -646,14 +647,14 @@ class checkbox:
 
 # -#-#-#-#-#-#-#-#-#-#-# Last value box #-#-#-#-#-#-#-#-#-#-#-#
 class last_value_box():
-    def __init__(self, window, x, y, width, height, last_value):
+    def __init__(self, window, x, y, width, height):
         self.window = window
 
         self.x = x
         self.y = y
         self.width = width
         self.height = height
-        self.last_value = last_value
+        self.last_value = None
 
         self.show_alert_values_times = 0
 
@@ -703,11 +704,10 @@ class tab:
             self.selected_indexes.append(i)
 
         for i in range(len(self.selected_indexes)):
-            self.checkboxes.append(checkbox(window_of_visualization, list_of_infographs[self.selected_indexes[i]].name,
-                                            informatio_box_x + 5, 20 * i + informatio_box_y + 20, 15, True))
+            self.checkboxes.append(checkbox(window_of_visualization, list_of_infographs[self.selected_indexes[i]],
+                                            information_box_x + 5, 20 * i + information_box_y + 20, 15, True))
             self.last_value_boxes.append(
-                last_value_box(window_of_visualization, informatio_box_x + 165, (20 * i) + (informatio_box_y + 20), 70,
-                               20, None))
+                last_value_box(window_of_visualization, information_box_x + 165, (20 * i) + (information_box_y + 20), 70,20))
 
     def draw(self, cursor_position):  # Draws the tab
         pygame.draw.rect(self.window, (0, 0, 0), (self.x - 2, self.y - 2, self.width + 4, self.height + 4), 0)
@@ -739,9 +739,9 @@ class tab:
 
         if self.selected:
             pygame.draw.rect(self.window, (100, 100, 100),
-                             (informatio_box_x, informatio_box_y, 400, 10 * len(self.checkboxes) + 80), 0)  ###### mudar ver
+                             (information_box_x, information_box_y, 400, 10 * len(self.checkboxes) + 80), 0)
             info_box_text1 = font.render("Last", True, (0, 0, 0))
-            self.window.blit(info_box_text1, (informatio_box_x + 180, informatio_box_y+3))
+            self.window.blit(info_box_text1, (information_box_x + 180, information_box_y+3))
             for c in range(len(self.checkboxes)):
                 self.checkboxes[c].draw()
             for i in range(len(self.last_value_boxes)):
