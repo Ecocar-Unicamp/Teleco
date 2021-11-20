@@ -1,46 +1,60 @@
 # Infograph plotter
 
-The infograph plotter is an easy way to visualize the data collected by the Ecocar-Unicamp telemetry sistem.
-It takes the informaition from a serial comunication and shows it in realtime in the form of a line graph. 
-It automates the entire process making it easy for the user. The plotter also has the possibility to select 
-the data displayed and offers tools to analise specific data points for a more indepth analysis.
+The infograph plotter allows visualization of the data collected by Ecocar-Unicamp's telemetry sistem. It shows realtime serial comunication information in the form of graphs, and automates the entire connecting process. The plotter also allows the selection of displayed data, and offers tools for specific analysis of data points for a more indepth analysis. While running, the program saves all collected data on a .txt file.
+
+* Latest version: V.1.0
 
 ## Instalation
 
-(instructions on how to install latest version)
+[instructions on how to install latest version]
 
-The latest version finished is: V.1.0
+## Setup <!-- trocar essa parte quando estabelecer protocolo can -->
+
+Connect an arduino to your computer, and certify that it has the latest version of the code installed. <!-- colocar link -->
+You can add custom tabs by changing the contents of the "predefined tabs.txt" file (will be explained later).
 
 ## Usage
 
 ### Connecting
 
-To connect to the telemetry sistem click the "connect" button. This will start the connecting process
-indicated in the button.
+To connect with the telemetry sistem, click the "connect" button. It should indicate the start of the connecting process (if it doesn't, make sure that the arduino has the right code, and connection with the computer is well stablished).
 
 <img src="doc/connect button.png">
 
 When a connection is stablished the button text will change to "connected".
 
-<img src="doc/connected button1.png">
+<img src="doc/connected button1.png"> <!-- trocar imagem -->
 
 ### Navigating the graph
 
-To best visualize the data the user can zoom in and out with the mouse wheel and walk trough the time axis 
-with the right and left arrow keys or with the bar under the graph. By pressing the blue button you can change 
-from live to static data. Passing the mouse cursor in the graph area will show the value of the closest points
-that will be highlighted by dots on the graph line.
+The following methods allows the user to change the manner in wich the graps are presented:
+* Zoom in and zoom out: using the mouse wheel
+* Graph displacement:  LEFT and RIGHT arrow keys (unitary displacement) or UP and DOWN arrow keys (quick displacement). You can also use the mouse to click on the bar and change the visulization window more quickly. By pressing "Set Window", the graph will fulfill the window.
+* Freeze or de-freeze the graph: by clicking the "Freeze" button. The graph will also freeze should you displace it. 
+* Change the graph's proportion: by pressing the "Local View/ Global View" button.
 
-<img src="doc/navigating the graph.gif">
+#### Comparing Information
+The information box contains the last value of each graph. Placing the mouse cursor in the graph area highlights the closest points' values with dots, and present their respective values and reference time on the information box. In this situation, you can press MOUSE1 to fixate this position in the "probe" column. Pressing MOUSE2 releases the saved positon.
+
+The values will appear red when a certain value is out of the expected.
+
+<img src="doc/navigating the graph.gif"> <!-- trocar imagem -->
 
 ### Selecting infographs
 
-The user can select what information to display clicking on the checkboxes on the right side of the window.
-This selection will be saved in the current tab and new tabs can be opend with the "new tab" button. To change the
-tab being shown just click the tab wich you want. The boxes on the side of these checkboxes indicates the last value of 
-the respective graph.
+The user can select what information to display clicking on the checkboxes on the right side of the window. This selection will be saved in the current tab, and new tabs can be opend with the "New Tab" button. To change the tab shown, just click on the new desired tab; to close it, click on the "x" (at least 1 tab should be opened). 
 
-<img src="doc/Telemetry-Plotter-2021-08-25-20-31-32.gif">
+<img src="doc/Telemetry-Plotter-2021-08-25-20-31-32.gif"> <!-- trocar imagem -->
+
+#### Predefinig Tabs
+
+You can add custom tabs by changing the contents of the "predefined tabs.txt" file, with the following rules: <!-- imagem -->
+
+* Each line represents a tab;
+* Information for each tab should be divided by semicolons (";");
+* The first element for each line should be the tab's name;
+* The following elements should be numbers and, in order, represent the tab's state of each checkbox (0 is the deselected state, and 1 is the selected. Selected is the standard state). 
+* If the tab's configuration contains more checkboxes than allowed, it will discard the extra information.
 
 ## Code info
 
