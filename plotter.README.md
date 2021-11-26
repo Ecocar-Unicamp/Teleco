@@ -1,6 +1,6 @@
-# Infograph plotter
+# Telemetry's Infograph plotter
 
-The infograph plotter allows visualization of the data collected by Ecocar-Unicamp's telemetry sistem. It shows realtime serial comunication information in the form of graphs, and automates the entire connecting process. The plotter also allows the selection of displayed data, and offers tools for specific analysis of data points for a more indepth analysis. While running, the program saves all collected data on a .txt file.
+The infograph plotter allows visualization data collected by Ecocar-Unicamp's telemetry system. It shows realtime serial comunication information in the form of graphs, and automates the entire connecting process. The plotter also allows the selection of displayed data, and offers specific tools for a more indepth analysis of data points. While running, the program saves all collected data in a .txt file.
 
 * Latest version: V.1.0
 
@@ -10,7 +10,7 @@ The infograph plotter allows visualization of the data collected by Ecocar-Unica
 
 ## Setup <!-- trocar essa parte quando estabelecer protocolo can -->
 
-Connect an arduino to your computer, and certify that it has the latest version of the code installed. <!-- colocar link -->
+Connect an arduino to your computer, and certify that it has the latest version of the code installed.
 You can add custom tabs by changing the contents of the "predefined tabs.txt" file (will be explained later).
 
 ## Usage
@@ -19,7 +19,7 @@ You can add custom tabs by changing the contents of the "predefined tabs.txt" fi
 
 To connect with the telemetry sistem, click the "connect" button. It should indicate the start of the connecting process (if it doesn't, make sure that the arduino has the right code, and connection with the computer is well stablished).
 
-<img src="doc/connect button.png">
+<img src="doc/connect button.png"> <!-- trocar imagem -->
 
 When a connection is stablished the button text will change to "connected".
 
