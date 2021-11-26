@@ -49,33 +49,34 @@ pygame.init()
 
 # -#-#-#-#-#-#-#-#-#-#-# Program's base interface #-#-#-#-#-#-#-#-#-#-#-#
 x_size_of_window = 1400
-y_size_of_window = 650
+y_size_of_window = 700
 color_of_screen = (40, 40, 40)
+
+try:
+    icon = pygame.image.load('Logo TelEco 32x32.png')  # program's icon image
+    pygame.display.set_icon(icon)
+except FileNotFoundError:
+    print("No image for Logo found")
 
 window_of_visualization = pygame.display.set_mode((x_size_of_window, y_size_of_window))  # the base display
 window_of_visualization.fill(color_of_screen)
 
 list_of_colors_for_lines = [(248, 82, 82), (97, 205, 97), (70, 118, 206), (255, 255, 105),
-                            (48, 228, 228), (255, 127, 127), (127, 255, 127), (127, 127, 255)]
+                            (48, 228, 228), (255, 152, 82), (127, 255, 127), (127, 127, 255)]
 
 text_font = "Arial"
 font = pygame.font.SysFont(text_font, 16)
 minor_font = pygame.font.SysFont(text_font, 12)
 
 pygame.display.set_caption("Telemetry Plotter")  # program's name
-try:
-    icon = pygame.image.load("Logo_blurange.png")  # program's icon image
-    pygame.display.set_icon(icon) ########## trocar pelo da teleco
-except FileNotFoundError:
-    print("No image for Logo found")
 
 version_text = font.render("Telemetry Plotter  Version: " + str(program_version), False,
-                           (0, 0, 0))  # program version info
-version_text_position = (0, y_size_of_window - 16)
+                           (200, 200, 200))  # program version info
+version_text_position = (4, y_size_of_window - 20)
 window_of_visualization.blit(version_text, version_text_position)
 
-information_box_x = 1000
-information_box_y = 90
+information_box_x = 170
+information_box_y = 480
 
 
 # -#-#-#-#-#-#-#-#-#-#-# Saving the data #-#-#-#-#-#-#-#-#-#-#-#
@@ -215,26 +216,26 @@ connection_button = button(window_of_visualization, connection_button_color, 30,
 message_freezing_button_0 = "Freeze"
 message_freezing_button_1 = "Live Data"
 freezing_button_color = (100, 100, 100)
-freezing_button = button(window_of_visualization, freezing_button_color, 140, 30, 100, 20, message_freezing_button_0)
+freezing_button = button(window_of_visualization, freezing_button_color, 30, 60, 100, 20, message_freezing_button_0)
 live_data = True
 
 # -_-_-_-_-_-_-_-_-_-_-# Set Window Button variables
 # button for setting the window size as the lenghth of the list of values
 set_window_button_color = (100, 100, 100)
-set_window_button = button(window_of_visualization, set_window_button_color, 360, 30, 100, 20, "Set Window")
+set_window_button = button(window_of_visualization, set_window_button_color, 30, 90, 100, 20, "Set Window")
 
 # -_-_-_-_-_-_-_-_-_-_-# Change View Button variables
 # button for freezing or defreezing the graph
 message_change_view_button_0 = "Local View"
 message_change_view_button_1 = "Global View"
 change_view_button_color = (100, 100, 100)
-change_view_button = button(window_of_visualization, change_view_button_color, 470, 30, 100, 20,
+change_view_button = button(window_of_visualization, change_view_button_color, 30, 120, 100, 20,
                             message_change_view_button_0)
 local_view = True
 
 # -_-_-_-_-_-_-_-_-_-_-# New Tab Button variables
 new_tab_button_color = (100, 100, 100)
-new_tab_button = button(window_of_visualization, new_tab_button_color, 250, 30, 100, 20, "New Tab")
+new_tab_button = button(window_of_visualization, new_tab_button_color, 30, 150, 100, 20, "New Tab")
 max_number_of_tabs = 10
 
 
@@ -372,9 +373,9 @@ number_of_x_marks = 7  # don't set it to <= 0
 number_of_y_marks = 5  # don't set it to <= 0
 
 main_graph_x = 175
-main_graph_y = 100
-main_graph_width = 800
-main_graph_height = 400
+main_graph_y = 30
+main_graph_width = 1200
+main_graph_height = 360
 
 y_axis_lenght = 50
 
@@ -439,20 +440,20 @@ class graph():
 
             # -_-_-_-_-_-_-_-_-_-_-# Axis base draw / Y axis part 1
             pygame.draw.rect(self.window_of_visualization, axis_color,
-                             (main_graph_x, self.y, len(selected_tab.selected_indexes) * y_axis_lenght, self.height))
+                             (self.x + self.width, self.y, len(selected_tab.selected_indexes) * y_axis_lenght, self.height))
             for i in range(len(selected_tab.selected_indexes)):
                 color = None
                 color = list_of_infographs[selected_tab.selected_indexes[i]].color
-                pygame.draw.line(window_of_visualization, color, (main_graph_x + (i + 1 / 2) * y_axis_lenght, self.y),
-                                 (main_graph_x + (i + 1 / 2) * y_axis_lenght, self.y + self.height), width=1)
-                text = font.render((list_of_infographs[selected_tab.selected_indexes[i]].name)[:3], True, (0, 0, 0))
+                pygame.draw.line(window_of_visualization, color, (self.x + self.width + (i + 1 / 2) * y_axis_lenght, self.y),
+                                 (self.x + self.width + (i + 1 / 2) * y_axis_lenght, self.y + self.height), width=1)
+                text = font.render((list_of_infographs[selected_tab.selected_indexes[i]].name)[:4], True, axis_color)
                 (self.window_of_visualization).blit(text, (
-                    main_graph_x + (i + 1 / 2) * y_axis_lenght - text.get_width() / 2, self.y + self.height))
+                    self.x + self.width + (i + 1 / 2) * y_axis_lenght - text.get_width() / 2, self.y + self.height + 5))
 
             graphic_step = self.height / (number_of_y_marks - 1)
             for position in range(number_of_y_marks):
                 pygame.draw.line(window_of_visualization, graph_info_color,
-                                 (main_graph_x, self.y + position * graphic_step),
+                                 (self.x, self.y + position * graphic_step),
                                  (self.x + self.width, self.y + position * graphic_step), width=1)
 
             # -_-_-_-_-_-_-_-_-_-_-# Information Presentation
@@ -500,15 +501,15 @@ class graph():
                         text = minor_font.render(scientific_notation(value), True, (0, 0, 0))
                         if position == 0:
                             (self.window_of_visualization).blit(text, (
-                                main_graph_x + (1 / 2 + i) * y_axis_lenght - text.get_width() / 2,
+                                self.x + self.width + (1 / 2 + i) * y_axis_lenght - text.get_width() / 2,
                                 self.y + self.height - position * graphic_step - text.get_height()))
                         elif position == number_of_y_marks - 1:
                             (self.window_of_visualization).blit(text, (
-                                main_graph_x + (1 / 2 + i) * y_axis_lenght - text.get_width() / 2,
+                                self.x + self.width + (1 / 2 + i) * y_axis_lenght - text.get_width() / 2,
                                 self.y + self.height - position * graphic_step))
                         else:
                             (self.window_of_visualization).blit(text, (
-                                main_graph_x + (1 / 2 + i) * y_axis_lenght - text.get_width() / 2,
+                                self.x + self.width + (1 / 2 + i) * y_axis_lenght - text.get_width() / 2,
                                 self.y + self.height - position * graphic_step - text.get_height() / 2))
 
                     # -_-_-_-_-_-_-_-_-_-_-# Information Presentation / Visual part
@@ -533,22 +534,22 @@ class graph():
 
     # -_-_-_-_-_-_-_-_-_-_-# Additional Information
     def info(self, cursor_position):  # conditional if cursor_is_over graph
-        point_distance = 1000000000
+        point_distance = None
         aux = 0
         font3 = pygame.font.SysFont(text_font, 12)
         closest_points = []
 
         if len(self.current_list_of_coordinates) and len(self.current_list_of_values_initial_and_final_positions) == len(self.current_list_of_coordinates):
-            info_box_text2 = font.render("Cursor", True, (0, 0, 0))
+            info_box_text2 = font.render("Cursor", True, (200, 200, 200))
             self.window_of_visualization.blit(info_box_text2, (information_box_x + 250, information_box_y + 3))
             incrementor = 0
             for index in selected_tab.selected_indexes:
                 closest_points.append(0)
-                point_distance = 1000000000
+                point_distance = None
                 aux = 0
                 for j in range(len(self.current_list_of_coordinates[incrementor])):  # finds closest points to the cursor
                     aux = abs(cursor_position[0] - self.current_list_of_coordinates[incrementor][j][0])
-                    if aux < point_distance:
+                    if point_distance == None or aux < point_distance:
                         point_distance = aux
                         closest_points[incrementor] = (j, self.current_list_of_coordinates[incrementor][j], self.list_of_infographs[incrementor].color)
                 pygame.draw.circle(self.window_of_visualization, closest_points[incrementor][2], closest_points[incrementor][1],
@@ -556,15 +557,15 @@ class graph():
 
                 info = minor_font.render(
                 scientific_notation(list_of_infographs[index].list_of_values[closest_points[incrementor][0] +
-                                    self.current_list_of_values_initial_and_final_positions[incrementor][0]]), True, (0, 0, 0))
+                                    self.current_list_of_values_initial_and_final_positions[incrementor][0]]), True, (200, 200, 200))
                 self.window_of_visualization.blit(info, (information_box_x + 275 - (info.get_width() / 2),
                                                          (20 * index) + (information_box_y + 30) - (
                                                                  info.get_height() / 2)))
                 incrementor += 1
 
-            info_box_text3 = font.render("Time", True, (0, 0, 0))
+            info_box_text3 = font.render("Time", True, (200, 200, 200))
             self.window_of_visualization.blit(info_box_text3, (information_box_x + 330, information_box_y + 3))
-            time_info = minor_font.render(timestamp(self.initial_smallest_step_position_in_list * smallest_step_infograph.step + (cursor_position[0] - self.x)*(((self.size_of_frame - 1) * smallest_step_infograph.step)/self.width)), True, (0, 0, 0))
+            time_info = minor_font.render(timestamp(self.initial_smallest_step_position_in_list * smallest_step_infograph.step + (cursor_position[0] - self.x)*(((self.size_of_frame - 1) * smallest_step_infograph.step)/self.width)), True, (200, 200, 200))
             self.window_of_visualization.blit(time_info, (information_box_x + 350 - (time_info.get_width() / 2), (information_box_y + 30) - (time_info.get_height() / 2)))
         pygame.draw.line(self.window_of_visualization, graph_info_color, (cursor_position[0], self.y),
                          (cursor_position[0], self.y + self.height), info_line_width)
@@ -613,7 +614,6 @@ pointer_pos = main_graph.x + main_graph.width - pointer_thickness
 # -#-#-#-#-#-#-#-#-#-#-# Checkbox #-#-#-#-#-#-#-#-#-#-#-#
 checkbox_main_color = (53, 87, 28)
 
-
 class checkbox:
     def __init__(self, window, infog, x, y, size=20, state=False):
         self.window = window
@@ -632,7 +632,7 @@ class checkbox:
 
         pygame.draw.rect(self.window, self.color, (self.x, self.y, self.size, self.size), 0)
 
-        text = font.render(self.name[:11] + " [" + self.unit[:3] + "]", True, self.text_color)
+        text = font.render(self.name[:11] + " [" + self.unit[:4] + "]", True, self.text_color)
         (self.window).blit(text, (self.x + (self.size + 10), self.y + (self.size / 2 - text.get_height() / 2)))
 
         if self.state:
@@ -660,7 +660,7 @@ class last_value_box():
 
     def draw(self):
         if (self.last_value != None):
-            color = (0, 0, 0)
+            color = (200, 200, 200)
             if self.show_alert_values_times > 0:
                 color = (248, 42, 42)
                 self.show_alert_values_times -= 1
@@ -738,9 +738,9 @@ class tab:
                 self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
 
         if self.selected:
-            pygame.draw.rect(self.window, (100, 100, 100),
+            pygame.draw.rect(self.window, (50, 50, 50),
                              (information_box_x, information_box_y, 400, 10 * len(self.checkboxes) + 80), 0)
-            info_box_text1 = font.render("Last", True, (0, 0, 0))
+            info_box_text1 = font.render("Last", True, (200, 200, 200))
             self.window.blit(info_box_text1, (information_box_x + 180, information_box_y+3))
             for c in range(len(self.checkboxes)):
                 self.checkboxes[c].draw()
@@ -762,7 +762,7 @@ file_name = "predefined tabs.txt"
 
 # -#-#-#-#-#-#-#-#-#-#-# Dummy Data Generator #-#-#-#-#-#-#-#-#-#-#-#
 # for testing without serial, just uncomment this part
-# do not try to connect the arduino when working with dummy, many bugs are not solved
+# do not attempt to connect the arduino when working with dummy, many bugs are not solved
 '''
 dummy_infograph = True
 last_times = []
@@ -827,7 +827,6 @@ while running:
         connection_button.text = message_connection_button_4
         main_graph.x = main_graph_x
         main_graph.width = main_graph_width
-        main_bar.x = main_graph.x
         main_bar.width = main_graph.width
         main_graph.list_of_infographs = []
         main_graph.current_list_of_coordinates = []
@@ -902,9 +901,9 @@ while running:
                                 split_line = line.split(";")
                                 if len(split_line) and split_line[0] != "" and len(list_of_tabs) < max_number_of_tabs:
                                     if len(list_of_tabs):
-                                        list_of_tabs.append(tab(window_of_visualization, 10, list_of_tabs[-1].y + 40, 100, 20, split_line[0], False))
+                                        list_of_tabs.append(tab(window_of_visualization, 30, list_of_tabs[-1].y + 30, 100, 20, split_line[0], False))
                                     else:
-                                        list_of_tabs.append(tab(window_of_visualization, 10, 150, 100, 20, split_line[0], True))
+                                        list_of_tabs.append(tab(window_of_visualization, 30, 180, 100, 20, split_line[0], True))
                                     for j in range(len(split_line) - 1):
                                         if j + 1 < len(list_of_tabs[-1].checkboxes):
                                             try:
@@ -921,9 +920,7 @@ while running:
                     selected_tab = list_of_tabs[0]
 
                     # configurates the y axis
-                    main_graph.x += len(selected_tab.selected_indexes) * y_axis_lenght
                     main_graph.width -= len(selected_tab.selected_indexes) * y_axis_lenght
-                    main_bar.x = main_graph.x
                     main_bar.width = main_graph.width
                 else:
                     connection_button.color = connection_button_color2
@@ -964,7 +961,7 @@ while running:
             # -_-_-_-_-_-_-_-_-_-_-# User commands / Tab management
             # creates a new tab
             if new_tab_button.cursor_is_over(cursor_position) and len(list_of_tabs) and len(list_of_tabs) < max_number_of_tabs:
-                list_of_tabs.append(tab(window_of_visualization, 10, list_of_tabs[-1].y + 40, 100, 20,
+                list_of_tabs.append(tab(window_of_visualization, 30, list_of_tabs[-1].y + 30, 100, 20,
                                         "Tab " + str(tab_number)))
                 tab_number += 1
 
@@ -974,9 +971,7 @@ while running:
                     selected_tab.selected = False
                     selected_tab = list_of_tabs[t]
                     selected_tab.selected = True
-                    main_graph.x = main_graph_x + len(list_of_tabs[t].selected_indexes) * y_axis_lenght
                     main_graph.width = main_graph_width - len(list_of_tabs[t].selected_indexes) * y_axis_lenght
-                    main_bar.x = main_graph.x
                     main_bar.width = main_graph.width
                     break
                 if list_of_tabs[t].cursor_is_over_close(cursor_position) and len(list_of_tabs) > 1:
@@ -986,8 +981,10 @@ while running:
                         list_of_tabs[0].selected = True
                         selected_tab = list_of_tabs[0]
                     for j in range(len(list_of_tabs) - t):
-                        list_of_tabs[t + j].y = list_of_tabs[t + j].y - 40
-                        list_of_tabs[t + j].close_y = list_of_tabs[t + j].close_y - 40
+                        list_of_tabs[t + j].y = list_of_tabs[t + j].y - 30
+                        list_of_tabs[t + j].close_y = list_of_tabs[t + j].close_y - 30
+                    main_graph.width = main_graph_width - len(list_of_tabs[t].selected_indexes) * y_axis_lenght
+                    main_bar.width = main_graph.width
                     break
 
             # -_-_-_-_-_-_-_-_-_-_-# User commands / Checkbox Management
@@ -997,13 +994,10 @@ while running:
                     if selected_tab.checkboxes[c].cursor_is_over(cursor_position):
                         if selected_tab.checkboxes[c].state:
                             selected_tab.selected_indexes.remove(c)
-                            main_graph.x -= y_axis_lenght
                             main_graph.width += y_axis_lenght
                         else:
                             selected_tab.selected_indexes.append(c)
-                            main_graph.x += y_axis_lenght
                             main_graph.width -= y_axis_lenght
-                        main_bar.x = main_graph.x
                         main_bar.width = main_graph.width
                         selected_tab.checkboxes[c].state = not selected_tab.checkboxes[c].state
 
@@ -1080,7 +1074,7 @@ while running:
 
     # -_-_-_-_-_-_-_-_-_-_-# User interactives
     draws_buttons(cursor_position)
-    pygame.draw.rect(window_of_visualization, (120, 120, 120), (5, 140, 150, 400), 0)
+    pygame.draw.rect(window_of_visualization, (120, 120, 120), (25, 175, 140, 300), 0)
     for t in list_of_tabs:
         t.draw(cursor_position)
 
