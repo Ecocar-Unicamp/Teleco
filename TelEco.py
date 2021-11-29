@@ -78,7 +78,6 @@ window_of_visualization.blit(version_text, version_text_position)
 information_box_x = 170
 information_box_y = 480
 
-
 # -#-#-#-#-#-#-#-#-#-#-# Saving the data #-#-#-#-#-#-#-#-#-#-#-#
 # Function creates a file to be used to save the data
 def CreateArch(list_of_infographs):
@@ -395,6 +394,8 @@ class graph():
         self.current_list_of_coordinates = []
         self.current_list_of_values_initial_and_final_positions = []  # (x,y) for showing information
 
+        self.probe_points = []
+
     def cursor_is_over(self,
                        cursor_position):  # Determines if the mouse cursor position in tuple (x,y) is over the button
         return cursor_is_over(self.x, self.y, self.width, self.height, cursor_position)
@@ -571,6 +572,54 @@ class graph():
                          (cursor_position[0], self.y + self.height), info_line_width)
         pygame.draw.circle(self.window_of_visualization, info_dot_color, cursor_position, info_dot_radius)
 
+    def probe(self, cursor_position):  # conditional if cursor_is_over graph
+        point_distance = None
+        aux = 0
+        font3 = pygame.font.SysFont(text_font, 12)
+        closest_points = []
+
+        if self.probe_points:
+            self.probe_points = []
+        else:
+            if len(self.current_list_of_coordinates) and len(self.current_list_of_values_initial_and_final_positions) == len(self.current_list_of_coordinates):
+
+                incrementor = 0
+                for index in selected_tab.selected_indexes:
+                    closest_points.append(0)
+                    point_distance = None
+                    aux = 0
+                    for j in range(len(self.current_list_of_coordinates[incrementor])):  # finds closest points to the cursor
+                        aux = abs(cursor_position[0] - self.current_list_of_coordinates[incrementor][j][0])
+                        if point_distance == None or aux < point_distance:
+                            point_distance = aux
+                            closest_points[incrementor] = (j, self.current_list_of_coordinates[incrementor][j], self.list_of_infographs[incrementor].color)
+                    pygame.draw.circle(self.window_of_visualization, closest_points[incrementor][2], closest_points[incrementor][1],
+                                       info_dot_radius)
+
+                    self.probe_points.append(scientific_notation(list_of_infographs[index].list_of_values[closest_points[incrementor][0] +
+                                        self.current_list_of_values_initial_and_final_positions[incrementor][0]]))
+
+                    incrementor += 1
+
+                self.probe_points.append(timestamp(self.initial_smallest_step_position_in_list * smallest_step_infograph.step + (cursor_position[0] - self.x)*(((self.size_of_frame - 1) * smallest_step_infograph.step)/self.width)))
+
+    def probe_print(self):
+        if self.probe_points:
+            incrementor = 0
+            for i in range(len(self.probe_points)-1):
+                info = minor_font.render(self.probe_points[incrementor], True,
+                    (200, 200, 200))
+                self.window_of_visualization.blit(info,  (information_box_x + 400 , (17*incrementor) + (information_box_y + 25) ))
+                incrementor += 1
+
+            info = minor_font.render(self.probe_points[incrementor], True,
+                                     (200, 200, 200))
+            self.window_of_visualization.blit(info, ( information_box_x + 400 , (17*incrementor) + (information_box_y + 25) ))
+
+            info_box_text3 = font.render("Probe", True, (200, 200, 200))
+            self.window_of_visualization.blit(info_box_text3,  (information_box_x + 400 , (information_box_y + 3) ))
+
+
 
 main_graph = graph(window_of_visualization, main_graph_x, main_graph_y, main_graph_width, main_graph_height)
 
@@ -739,7 +788,7 @@ class tab:
 
         if self.selected:
             pygame.draw.rect(self.window, (50, 50, 50),
-                             (information_box_x, information_box_y, 400, 10 * len(self.checkboxes) + 80), 0)
+                             (information_box_x, information_box_y, 470, 10 * len(self.checkboxes) + 80), 0)
             info_box_text1 = font.render("Last", True, (200, 200, 200))
             self.window.blit(info_box_text1, (information_box_x + 180, information_box_y+3))
             for c in range(len(self.checkboxes)):
@@ -1001,6 +1050,10 @@ while running:
                         main_bar.width = main_graph.width
                         selected_tab.checkboxes[c].state = not selected_tab.checkboxes[c].state
 
+            # -_-_-_-_-_-_-_-_-_-_-# User commands / Probe
+            # select or unselect probe points
+            if main_graph.cursor_is_over(cursor_position):
+                main_graph.probe(cursor_position)
 
         if button_pressed[0] and (serial_COM_port or dummy_infograph):
             # -_-_-_-_-_-_-_-_-_-_-# User commands / Bar management
@@ -1072,6 +1125,7 @@ while running:
     main_graph.draw()
     main_bar.draw()
 
+
     # -_-_-_-_-_-_-_-_-_-_-# User interactives
     draws_buttons(cursor_position)
     pygame.draw.rect(window_of_visualization, (120, 120, 120), (25, 175, 140, 300), 0)
@@ -1083,6 +1137,8 @@ while running:
         main_graph.info(cursor_position)
     else:
         pygame.mouse.set_visible(True)
+
+    main_graph.probe_print()
 
     # updates pointer position while more values are taken into account
     main_bar.update_pointer()
