@@ -45,9 +45,9 @@ void setup() {
   addInfograph("Velocity", "km/h", 2.3, "900", "0");
   addInfograph("Current", "mA", 0.5, "6", "4");
   addInfograph("RPM", "Hz", 1, "6", "4.5");
-  addInfograph("Temperature", "ºC", 0.7, "0.7", "0.5");
-  addInfograph("Inclinação", "°", 1.7, "5000");
-  addInfograph("NomeGrandeComoReferencia", "PassoGrandeComoReferencia", 0.3, "25");
+  addInfograph("Inclination", "°", 0.7, "0.7", "0.5");
+  addInfograph("Temperature", "°C", 1.7, "5000");
+  addInfograph("Tensão", "V" 0.3, "25");
 
   Serial.begin(9600);
   while(Serial.available() > 0) {
