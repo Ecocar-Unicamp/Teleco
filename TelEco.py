@@ -564,10 +564,8 @@ class graph():
                                                                  info.get_height() / 2)))
                 incrementor += 1
 
-            info_box_text3 = font.render("Time", True, (200, 200, 200))
-            self.window_of_visualization.blit(info_box_text3, (information_box_x + 330, information_box_y + 3))
             time_info = minor_font.render(timestamp(self.initial_smallest_step_position_in_list * smallest_step_infograph.step + (cursor_position[0] - self.x)*(((self.size_of_frame - 1) * smallest_step_infograph.step)/self.width)), True, (200, 200, 200))
-            self.window_of_visualization.blit(time_info, (information_box_x + 350 - (time_info.get_width() / 2), (information_box_y + 30) - (time_info.get_height() / 2)))
+            self.window_of_visualization.blit(time_info, (information_box_x + 275 - (time_info.get_width() / 2), (20 * (index+1)) + (information_box_y + 30) - (time_info.get_height() / 2)))
         pygame.draw.line(self.window_of_visualization, graph_info_color, (cursor_position[0], self.y),
                          (cursor_position[0], self.y + self.height), info_line_width)
         pygame.draw.circle(self.window_of_visualization, info_dot_color, cursor_position, info_dot_radius)
@@ -575,7 +573,7 @@ class graph():
     def probe(self, cursor_position):  # conditional if cursor_is_over graph
         point_distance = None
         aux = 0
-        font3 = pygame.font.SysFont(text_font, 12)
+        font3 = pygame.font.SysFont(text_font, 13)
         closest_points = []
 
         if self.probe_points:
@@ -593,31 +591,28 @@ class graph():
                         if point_distance == None or aux < point_distance:
                             point_distance = aux
                             closest_points[incrementor] = (j, self.current_list_of_coordinates[incrementor][j], self.list_of_infographs[incrementor].color)
-                    pygame.draw.circle(self.window_of_visualization, closest_points[incrementor][2], closest_points[incrementor][1],
-                                       info_dot_radius)
 
-                    self.probe_points.append(scientific_notation(list_of_infographs[index].list_of_values[closest_points[incrementor][0] +
-                                        self.current_list_of_values_initial_and_final_positions[incrementor][0]]))
+
+                    self.probe_points.append([scientific_notation(list_of_infographs[index].list_of_values[closest_points[incrementor][0] +
+                                        self.current_list_of_values_initial_and_final_positions[incrementor][0]]),index])
 
                     incrementor += 1
 
-                self.probe_points.append(timestamp(self.initial_smallest_step_position_in_list * smallest_step_infograph.step + (cursor_position[0] - self.x)*(((self.size_of_frame - 1) * smallest_step_infograph.step)/self.width)))
+                self.probe_points.append([timestamp(self.initial_smallest_step_position_in_list * smallest_step_infograph.step + (cursor_position[0] - self.x)*(((self.size_of_frame - 1) * smallest_step_infograph.step)/self.width)),index + 1])
 
     def probe_print(self):
         if self.probe_points:
-            incrementor = 0
             for i in range(len(self.probe_points)-1):
-                info = minor_font.render(self.probe_points[incrementor], True,
+                info = minor_font.render(self.probe_points[i][0], True,
                     (200, 200, 200))
-                self.window_of_visualization.blit(info,  (information_box_x + 400 , (17*incrementor) + (information_box_y + 25) ))
-                incrementor += 1
+                self.window_of_visualization.blit(info,  (information_box_x + 350 , (17*self.probe_points[i][1]) + (information_box_y + 25) ))
 
-            info = minor_font.render(self.probe_points[incrementor], True,
+            info = minor_font.render(self.probe_points[i+1][0], True,
                                      (200, 200, 200))
-            self.window_of_visualization.blit(info, ( information_box_x + 400 , (17*incrementor) + (information_box_y + 25) ))
+            self.window_of_visualization.blit(info, ( information_box_x + 350 , (17*self.probe_points[i+1][1]) + (information_box_y + 25) ))
 
             info_box_text3 = font.render("Probe", True, (200, 200, 200))
-            self.window_of_visualization.blit(info_box_text3,  (information_box_x + 400 , (information_box_y + 3) ))
+            self.window_of_visualization.blit(info_box_text3,  (information_box_x + 350 , (information_box_y + 3) ))
 
 
 
