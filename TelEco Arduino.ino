@@ -47,7 +47,7 @@ void setup() {
   addInfograph("RPM", "Hz", 1, "6", "4.5");
   addInfograph("Inclination", "°", 0.7, "0.7", "0.5");
   addInfograph("Temperature", "°C", 1.7, "5000");
-  addInfograph("Tensão", "V" 0.3, "25");
+  addInfograph("Tension", "V" 0.3, "25");
 
   Serial.begin(9600);
   while(Serial.available() > 0) {
