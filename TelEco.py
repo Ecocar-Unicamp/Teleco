@@ -13,36 +13,18 @@ import os
 program_version = "BETA"  # 1.0
 
 '''
-comentários em inglês servem para explicar o código; em português, fazem um direcionamento de futuras mudanças
-'''
-
-'''
-Marcadores:
-#-#-#-#-#-#-#-#-#-#-#-# TítuloTópico #-#-#-#-#-#-#-#-#-#-#-#
-#-_-_-_-_-_-_-_-_-_-_-# Tópico / Subtópico
-# Explicação
+Markers:
+#-#-#-#-#-#-#-#-#-#-#-# Title #-#-#-#-#-#-#-#-#-#-#-#
+#-_-_-_-_-_-_-_-_-_-_-# Topic / Subtopic
+# Explanation
 #$%$%$%$%$%$%$%$%# Extra #$%$%$%$%$%$%$%$%#
 '''
 
 '''
-#$%$%$%$%$%$%$%$%# Criação de executável com PyInstaller #$%$%$%$%$%$%$%$%#
-ícone precisa estar formatado: https://www.icoconverter.com/
-Abrir cmd e digitar:
-cd /diretorio/do/arquivo
-pyinstaller programa.py --onefile --noconsole --icon=/diretorio/icone.ico
-encontar .exe na pasta dist, agregar dependencias em uma pasta e compactar para o envio
-criar atalho
-'''
-
-'''
--- fazer até v1
-parametrizar tudo!!!!
-deixar explicação
--- futuros pontos de melhoria:
+TODO
 resizing: https://www.youtube.com/watch?v=edJZOQwrMKw&list=WL&index=5&t=233s&ab_channel=DaFluffyPotato
-transpor classes e funções para arquivos separados
-caso tenhamos um membro daltonico, reavaliar cores
-passos não estão sendo distanciados corretamente quando possuem OGs diferentes. é um problema do dummy apenas
+daltonic mode - if needed
+solve dummy step bug
 '''
 
 pygame.init()
@@ -807,16 +789,16 @@ file_name = "predefined tabs.txt"
 # -#-#-#-#-#-#-#-#-#-#-# Dummy Data Generator #-#-#-#-#-#-#-#-#-#-#-#
 # for testing without serial, just uncomment this part
 # do not attempt to connect the arduino when working with dummy, many bugs are not solved
-'''
+
 dummy_infograph = True
 last_times = []
 a = 0
-list_of_infographs.append(infograph("D1", 0.5, list_of_colors_for_lines[0], "d1", 500, 0))
-list_of_infographs.append(infograph("D2", 1.5, list_of_colors_for_lines[1], "d2"))
-list_of_infographs.append(infograph("D3", 0.5, list_of_colors_for_lines[2], "d3"))
-list_of_infographs.append(infograph("D4", 0.1, list_of_colors_for_lines[3], "d4", 1.5))
-list_of_infographs.append(infograph("D5", 1, list_of_colors_for_lines[4], "d5", None, 10000))
-list_of_infographs.append(infograph("D6", 2, list_of_colors_for_lines[5], "d6"))
+list_of_infographs.append(infograph("Velocity", 0.5, list_of_colors_for_lines[0], "km/h", 500, 0))
+list_of_infographs.append(infograph("Current", 1.5, list_of_colors_for_lines[1], "mA"))
+list_of_infographs.append(infograph("RPM", 0.5, list_of_colors_for_lines[2], "Hz"))
+list_of_infographs.append(infograph("Inclination", 0.1, list_of_colors_for_lines[3], "°", 1.5))
+list_of_infographs.append(infograph("Temperature", 1, list_of_colors_for_lines[4], "°C", None, 10000))
+list_of_infographs.append(infograph("Tension", 2, list_of_colors_for_lines[5], "V"))
 for i in range(len(list_of_infographs)):
     last_times.append(0)
 serial_COM_port = None
@@ -831,14 +813,13 @@ for i in range(len(list_of_infographs)):
 minimum_frame_size = 3 * biggest_step / smallest_step_infograph.step
 final_timestamp_index = 10 - int(math.log10(smallest_step_infograph.step))
 main_graph.size_of_frame = 10 * minimum_frame_size
-list_of_tabs.append(tab(window_of_visualization, 100, 240, 100, 20, "Tab 1", True))
+list_of_tabs.append(tab(window_of_visualization, 30, 180, 100, 20, "Tab 0", True))
 selected_tab = list_of_tabs[0]
 # y axis
-main_graph.x += len(list_of_infographs) * y_axis_lenght
 main_graph.width -= len(list_of_infographs) * y_axis_lenght
 main_bar.x = main_graph.x
 main_bar.width = main_graph.width
-'''
+
 
 # -#-#-#-#-#-#-#-#-#-#-# Program's Loop #-#-#-#-#-#-#-#-#-#-#-#
 cursor_position = None
@@ -887,15 +868,15 @@ while running:
                 b = math.cos(a)
                 if i == 0:
                     value = random.randint(0, 1)
-                if i == 1:
+                elif i == 1:
                     value = 100 * b + random.randrange(-100000, 100000, 1)
-                if i == 2:
+                elif i == 2:
                     value = b + math.cos(random.randrange(-1000, 1000, 1) / 300)
-                if i == 3:
+                elif i == 3:
                     value = -b + math.acos(random.randrange(-1000, 1000, 1) / 1000)
-                if i == 4:
+                elif i == 4:
                     value = b + 2 ** -random.randint(0, 10)
-                if i == 5:
+                elif i == 5:
                     value = b + random.randint(1, 10) ** (-1)
                 list_of_infographs[i].list_of_values.append(value)
                 # calculates new global highest and lowest
@@ -959,7 +940,7 @@ while running:
                     except FileNotFoundError:
                         print("No predefined tabs")
                     if not len(list_of_tabs):
-                        list_of_tabs.append(tab(window_of_visualization, 10, 150, 100, 20, "Tab " + str(tab_number), True))
+                        list_of_tabs.append(tab(window_of_visualization, 30, 180, 100, 20, "Tab " + str(tab_number), True))
                         tab_number += 1
                     selected_tab = list_of_tabs[0]
 
@@ -1027,7 +1008,7 @@ while running:
                     for j in range(len(list_of_tabs) - t):
                         list_of_tabs[t + j].y = list_of_tabs[t + j].y - 30
                         list_of_tabs[t + j].close_y = list_of_tabs[t + j].close_y - 30
-                    main_graph.width = main_graph_width - len(list_of_tabs[t].selected_indexes) * y_axis_lenght
+                    main_graph.width = main_graph_width - len(selected_tab.selected_indexes) * y_axis_lenght
                     main_bar.width = main_graph.width
                     break
 
