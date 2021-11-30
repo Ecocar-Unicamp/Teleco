@@ -6,11 +6,13 @@ The infograph plotter allows visualization data collected by Ecocar-Unicamp's te
 
 ## Instalation
 
-[instructions on how to install latest version]
+1. Dowload the latest versions of TelEco.py to your computer and TelEco Arduino.ino to your arduino;
+2. Add the periferic files to the ssame folder as the program;
+3. You may use pyinstaller to generate an executable for the program.
 
 ## Setup <!-- trocar essa parte quando estabelecer protocolo can -->
 
-Connect an arduino to your computer, and certify that it has the latest version of the code installed.
+Connect an arduino to your computer. Then, run the python code.
 You can add custom tabs by changing the contents of the "predefined tabs.txt" file (will be explained later).
 
 ## Usage
