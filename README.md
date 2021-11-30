@@ -36,7 +36,7 @@ The following methods allows the user to change the manner in wich the graps are
 * Change the graph's proportion: by pressing the "Local View/ Global View" button.
 
 #### Comparing Information
-The information box contains the last value of each graph. Placing the mouse cursor in the graph area highlights the closest points' values with dots, and present their respective values and reference time on the information box. In this situation, you can press MOUSE1 to fixate this position in the "probe" column. Pressing MOUSE2 releases the saved positon.
+The information box contains the last value of each graph. Placing the mouse cursor in the graph area highlights the closest points' values with dots, and present their respective values and reference time on the information box. In this situation, you can press MOUSE1 to fixate this position in the "probe" column, and press it again to release the position.
 
 The values will appear red when a certain value is out of the expected.
 
