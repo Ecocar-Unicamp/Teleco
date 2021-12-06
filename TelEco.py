@@ -762,8 +762,7 @@ class tab:
                 self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
 
         if self.selected:
-                        pygame.draw.rect(self.window, (50, 50, 50),
-                             (information_box_x, information_box_y, 470, 17 * len(self.checkboxes) + 85), 0)
+            pygame.draw.rect(self.window, (50, 50, 50), (information_box_x, information_box_y, 470, 17 * len(self.checkboxes) + 85), 0)
             info_box_text1 = font.render("Last", True, (200, 200, 200))
             self.window.blit(info_box_text1, (information_box_x + 190, information_box_y+3))
             for c in range(len(self.checkboxes)):
