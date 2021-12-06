@@ -524,7 +524,7 @@ class graph():
 
         if len(self.current_list_of_coordinates) and len(self.current_list_of_values_initial_and_final_positions) == len(self.current_list_of_coordinates):
             info_box_text2 = font.render("Cursor", True, (200, 200, 200))
-            self.window_of_visualization.blit(info_box_text2, (information_box_x + 250, information_box_y + 3))
+            self.window_of_visualization.blit(info_box_text2, (information_box_x + 260, information_box_y + 3))
             incrementor = 0
             for index in selected_tab.selected_indexes:
                 closest_points.append(0)
@@ -541,13 +541,13 @@ class graph():
                 info = minor_font.render(
                 scientific_notation(list_of_infographs[index].list_of_values[closest_points[incrementor][0] +
                                     self.current_list_of_values_initial_and_final_positions[incrementor][0]]), True, (200, 200, 200))
-                self.window_of_visualization.blit(info, (information_box_x + 275 - (info.get_width() / 2),
-                                                         (20 * index) + (information_box_y + 30) - (
+                self.window_of_visualization.blit(info, (information_box_x + 285 - (info.get_width() / 2),
+                                                         (25 * index) + (information_box_y + 30) - (
                                                                  info.get_height() / 2)))
                 incrementor += 1
 
             time_info = minor_font.render(timestamp(self.initial_smallest_step_position_in_list * smallest_step_infograph.step + (cursor_position[0] - self.x)*(((self.size_of_frame - 1) * smallest_step_infograph.step)/self.width)), True, (200, 200, 200))
-            self.window_of_visualization.blit(time_info, (information_box_x + 275 - (time_info.get_width() / 2), (20 * (index+1)) + (information_box_y + 30) - (time_info.get_height() / 2)))
+            self.window_of_visualization.blit(time_info, (information_box_x + 285 - (time_info.get_width() / 2), (25 * (index+1)) + (information_box_y + 30) - (time_info.get_height() / 2)))
         pygame.draw.line(self.window_of_visualization, graph_info_color, (cursor_position[0], self.y),
                          (cursor_position[0], self.y + self.height), info_line_width)
         pygame.draw.circle(self.window_of_visualization, info_dot_color, cursor_position, info_dot_radius)
@@ -584,18 +584,17 @@ class graph():
 
     def probe_print(self):
         if self.probe_points:
-            for i in range(len(self.probe_points)-1):
+                        for i in range(len(self.probe_points)-1):
                 info = minor_font.render(self.probe_points[i][0], True,
                     (200, 200, 200))
-                self.window_of_visualization.blit(info,  (information_box_x + 350 , (17*self.probe_points[i][1]) + (information_box_y + 25) ))
+                self.window_of_visualization.blit(info,  (information_box_x + 375 - (info.get_width() / 2), (25*self.probe_points[i][1]) + (information_box_y + 30) - (info.get_height() / 2)))
 
             info = minor_font.render(self.probe_points[i+1][0], True,
                                      (200, 200, 200))
-            self.window_of_visualization.blit(info, ( information_box_x + 350 , (17*self.probe_points[i+1][1]) + (information_box_y + 25) ))
+            self.window_of_visualization.blit(info, (information_box_x + 375 - (info.get_width() / 2), (25*self.probe_points[i+1][1]) + (information_box_y + 30) - (info.get_height() / 2)))
 
             info_box_text3 = font.render("Probe", True, (200, 200, 200))
             self.window_of_visualization.blit(info_box_text3,  (information_box_x + 350 , (information_box_y + 3) ))
-
 
 
 main_graph = graph(window_of_visualization, main_graph_x, main_graph_y, main_graph_width, main_graph_height)
@@ -731,9 +730,9 @@ class tab:
 
         for i in range(len(self.selected_indexes)):
             self.checkboxes.append(checkbox(window_of_visualization, list_of_infographs[self.selected_indexes[i]],
-                                            information_box_x + 5, 20 * i + information_box_y + 20, 15, True))
+                                            information_box_x + 5, 25 * i + information_box_y + 20, 15, True))
             self.last_value_boxes.append(
-                last_value_box(window_of_visualization, information_box_x + 165, (20 * i) + (information_box_y + 20), 70,20))
+                last_value_box(window_of_visualization, information_box_x + 175, (25 * i) + (information_box_y + 20), 70,20))
 
     def draw(self, cursor_position):  # Draws the tab
         pygame.draw.rect(self.window, (0, 0, 0), (self.x - 2, self.y - 2, self.width + 4, self.height + 4), 0)
@@ -764,10 +763,10 @@ class tab:
                 self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
 
         if self.selected:
-            pygame.draw.rect(self.window, (50, 50, 50),
-                             (information_box_x, information_box_y, 470, 10 * len(self.checkboxes) + 80), 0)
+                        pygame.draw.rect(self.window, (50, 50, 50),
+                             (information_box_x, information_box_y, 470, 17 * len(self.checkboxes) + 85), 0)
             info_box_text1 = font.render("Last", True, (200, 200, 200))
-            self.window.blit(info_box_text1, (information_box_x + 180, information_box_y+3))
+            self.window.blit(info_box_text1, (information_box_x + 190, information_box_y+3))
             for c in range(len(self.checkboxes)):
                 self.checkboxes[c].draw()
             for i in range(len(self.last_value_boxes)):
