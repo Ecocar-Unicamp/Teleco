@@ -584,9 +584,8 @@ class graph():
 
     def probe_print(self):
         if self.probe_points:
-                        for i in range(len(self.probe_points)-1):
-                info = minor_font.render(self.probe_points[i][0], True,
-                    (200, 200, 200))
+            for i in range(len(self.probe_points)-1):
+                info = minor_font.render(self.probe_points[i][0], True, (200, 200, 200))
                 self.window_of_visualization.blit(info,  (information_box_x + 375 - (info.get_width() / 2), (25*self.probe_points[i][1]) + (information_box_y + 30) - (info.get_height() / 2)))
 
             info = minor_font.render(self.probe_points[i+1][0], True,
