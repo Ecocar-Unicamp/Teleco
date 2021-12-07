@@ -58,6 +58,10 @@ You can add custom tabs by changing the contents of the "predefined tabs.txt" fi
 * The following elements should be numbers and, in order, represent the tab's state of each checkbox (0 is the deselected state, and 1 is the selected. Selected is the standard state). 
 * If the tab's configuration contains more checkboxes than allowed, it will discard the extra information.
 
+## Saved Information
+
+All data will be saved on a .txt file, formated for being displayed on a spreadsheet, on a folder with the save date.
+
 ## Code info
 
 The plotter is written in python using the [pygame library](https://www.pygame.org/news) wich makes the graphic interface and user input easy to implement.
