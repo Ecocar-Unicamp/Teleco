@@ -1,13 +1,13 @@
-# Telemetry's Infograph plotter
+# Telemetry's Graph plotter
 
-The infograph plotter allows visualization data collected by Ecocar-Unicamp's telemetry system. It shows realtime serial comunication information in the form of graphs, and automates the entire connecting process. The plotter also allows the selection of displayed data, and offers specific tools for a more indepth analysis of data points. While running, the program saves all collected data in a .txt file.
+The Graph plotter allows visualization data collected by Ecocar-Unicamp's telemetry system. It shows realtime serial comunication information in the form of graphs, and automates the entire connecting process. The plotter also allows the selection of displayed data, and offers specific tools for a more indepth analysis of data points. While running, the program saves all collected data in a .txt file.
 
 * Latest version: V.1.0
 
 ## Instalation
 
 1. Dowload the latest versions of TelEco.py to your computer and TelEco Arduino.ino to your arduino;
-2. Add the periferic files to the ssame folder as the program;
+2. Add the periferic files to the same folder as the program;
 3. You may use pyinstaller to generate an executable for the program.
 
 ## Setup <!-- trocar essa parte quando estabelecer protocolo can -->
