@@ -21,11 +21,11 @@ Você pode adicionar guias personalizadas alterando o conteúdo do arquivo "pred
 
 Para se conectar ao sistema de telemetria, clique no botão "conectar". Deve indicar o início do processo de conexão (caso contrário, certifique-se de que o arduino tenha o código correto e a conexão com o computador esteja bem estabelecida).
 
-<img src = "doc / connect button.png">
+<img src = "doc/Telemetry-Plotter-2021-12-07-13-48-24.gif">
 
 Quando uma conexão for estabelecida, o texto do botão mudará para "conectado".
 
-<img src = "doc / connected button1.png">
+<img src = "doc/Connected button.png">
 
 ### Navegando no gráfico
 
@@ -40,13 +40,13 @@ A caixa de informações contém o último valor de cada gráfico. Posicionar o 
 
 Os valores aparecerão em vermelho quando um determinado valor estiver fora do esperado.
 
-<img src = "doc / navigating the graph.gif">
+<img src = "doc/Comparing-points.gif">
 
 ### Selecionando infografias
 
 O usuário pode selecionar quais informações exibir clicando nas caixas de seleção no lado direito da janela. Esta seleção será salva na aba atual, e novas abas podem ser abertas com o botão "Nova Aba". Para alterar a aba mostrada, basta clicar na nova aba desejada; para fechá-la, clique no "x" (pelo menos 1 guia deve estar aberta).
 
-<img src = "doc / Telemetry-Plotter-2021-08-25-20-31-32.gif">
+<img src = "doc/Changing-tabs.gif">
 
 #### Abas Predefinig
 
