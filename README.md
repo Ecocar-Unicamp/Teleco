@@ -25,7 +25,7 @@ To connect with the telemetry sistem, click the "connect" button. It should indi
 
 When a connection is stablished the button text will change to "connected".
 
-<img src="doc/connected button1.png"> <!-- trocar imagem -->
+<img src="doc/Connected button.png"> <!-- trocar imagem -->
 
 ### Navigating the graph
 
@@ -40,13 +40,13 @@ The information box contains the last value of each graph. Placing the mouse cur
 
 The values will appear red when a certain value is out of the expected.
 
-<img src="doc/navigating the graph.gif"> <!-- trocar imagem -->
+<img src="doc/Comparing-points.gif"> <!-- trocar imagem -->
 
 ### Selecting infographs
 
 The user can select what information to display clicking on the checkboxes on the right side of the window. This selection will be saved in the current tab, and new tabs can be opend with the "New Tab" button. To change the tab shown, just click on the new desired tab; to close it, click on the "x" (at least 1 tab should be opened). 
 
-<img src="doc/Telemetry-Plotter-2021-08-25-20-31-32.gif"> <!-- trocar imagem -->
+<img src="doc/Changing-tabs.gif"> <!-- trocar imagem -->
 
 #### Predefinig Tabs
 
