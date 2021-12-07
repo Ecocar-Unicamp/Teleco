@@ -21,7 +21,7 @@ You can add custom tabs by changing the contents of the "predefined tabs.txt" fi
 
 To connect with the telemetry sistem, click the "connect" button. It should indicate the start of the connecting process (if it doesn't, make sure that the arduino has the right code, and connection with the computer is well stablished).
 
-<img src="doc/connect button.png"> <!-- trocar imagem -->
+<img src="doc/Telemetry-Plotter-2021-12-07-13-48-24.gif"> <!-- trocar imagem -->
 
 When a connection is stablished the button text will change to "connected".
 
