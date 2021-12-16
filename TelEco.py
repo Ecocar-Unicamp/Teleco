@@ -587,13 +587,11 @@ class graph():
 
     def probe_print(self):
         if self.probe_points:
-            for i in range(len(self.probe_points)-1):
+            for i in range(len(self.probe_points)):
                 info = minor_font.render(self.probe_points[i][0], True, (200, 200, 200))
                 self.window_of_visualization.blit(info,  (information_box_x + 435 - (info.get_width() / 2), (25*self.probe_points[i][1]) + (information_box_y + 30) - (info.get_height() / 2)))
-            self.window_of_visualization.blit(self.probe_time, (information_box_x + 430 - (info.get_width() / 2),(25 * len(list_of_infographs)) + (information_box_y + 30) - (info.get_height() / 2)))
-
-            info = minor_font.render(self.probe_points[i+1][0], True,(200, 200, 200))
-            self.window_of_visualization.blit(info, (information_box_x + 433 - (info.get_width() / 2), (25*self.probe_points[i+1][1]) + (information_box_y + 30) - (info.get_height() / 2)))
+            info = self.probe_time
+            self.window_of_visualization.blit(self.probe_time, (information_box_x + 435 - (info.get_width() / 2), (25 * len(list_of_infographs)) + (information_box_y + 30) - (info.get_height() / 2)))
 
             info_box_text3 = font.render("Probe", True, (200, 200, 200))
             self.window_of_visualization.blit(info_box_text3,  (information_box_x + 413 , (information_box_y + 3) ))
@@ -792,7 +790,7 @@ file_name = "predefined tabs.txt"
 # -#-#-#-#-#-#-#-#-#-#-# Dummy Data Generator #-#-#-#-#-#-#-#-#-#-#-#
 # for testing without serial, just uncomment this part
 # do not attempt to connect the arduino when working with dummy, many bugs are not solved
-'''
+
 dummy_infograph = True
 last_times = []
 a = 0
@@ -822,7 +820,7 @@ selected_tab = list_of_tabs[0]
 main_graph.width -= len(list_of_infographs) * y_axis_lenght
 main_bar.x = main_graph.x
 main_bar.width = main_graph.width
-'''
+
 
 # -#-#-#-#-#-#-#-#-#-#-# Program's Loop #-#-#-#-#-#-#-#-#-#-#-#
 cursor_position = None
