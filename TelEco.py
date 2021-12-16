@@ -790,7 +790,7 @@ file_name = "predefined tabs.txt"
 # -#-#-#-#-#-#-#-#-#-#-# Dummy Data Generator #-#-#-#-#-#-#-#-#-#-#-#
 # for testing without serial, just uncomment this part
 # do not attempt to connect the arduino when working with dummy, many bugs are not solved
-
+'''
 dummy_infograph = True
 last_times = []
 a = 0
@@ -820,7 +820,7 @@ selected_tab = list_of_tabs[0]
 main_graph.width -= len(list_of_infographs) * y_axis_lenght
 main_bar.x = main_graph.x
 main_bar.width = main_graph.width
-
+'''
 
 # -#-#-#-#-#-#-#-#-#-#-# Program's Loop #-#-#-#-#-#-#-#-#-#-#-#
 cursor_position = None
