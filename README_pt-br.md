@@ -1,13 +1,13 @@
 # Gerador de Gráficos da Telemetria
 
-O gerador de gráficos permite a visualização dos dados coletados pelo sistema de telemetria da Ecocar-Unicamp. Ele mostra informações de comunicação serial em tempo real na forma de gráficos e automatiza todo o processo de conexão. O programa também permite a seleção dos dados exibidos e oferece ferramentas específicas para uma análise mais aprofundada dos dados. Durante a execução, o programa salva todos os dados coletados em um arquivo .txt.
+O gerador de gráficos permite a visualização dos dados coletados pelo sistema de telemetria da equipe Ecocar Unicamp. Ele mostra informações de comunicação serial em tempo real na forma de gráficos e automatiza todo o processo de conexão. O programa também permite a seleção dos dados exibidos e oferece ferramentas específicas para uma análise mais aprofundada dos dados. Durante a execução, o programa salva todos os dados coletados em um arquivo .txt.
 
 * Versão mais recente: V.1.0
 
 ## Instalação
 
 1. Baixe as versões mais recentes do TelEco.py para o seu computador e do TelEco Arduino.ino para o seu arduino;
-2. Adicione os arquivos periféricos à mesma do programa;
+2. Adicione os arquivos periféricos à mesma pasta do programa;
 3. Você pode usar o pyinstaller para gerar um executável para o programa.
 
 ## Setup
@@ -36,7 +36,7 @@ Os métodos a seguir permitem ao usuário alterar a forma como os gráficos são
 * Altere a proporção do gráfico: pressionando o botão "Visualização local / Visualização global".
 
 #### Comparando informações
-A caixa de informações contém o último valor de cada gráfico. Posicionar o cursor do mouse na área do gráfico destaca os valores dos pontos mais próximos com pontos, e apresenta seus respectivos valores e tempo de referência na caixa de informações. Nesta situação, você pode pressionar MOUSE1 para fixar esta posição na coluna "sonda" e pressioná-lo novamente para liberar a posição.
+A caixa de informações contém o último valor de cada gráfico. Posicionar o cursor do mouse na área do gráfico destaca os valores dos pontos mais próximos com pontos, e apresenta seus respectivos valores e tempo de referência na caixa de informações. Nesta situação, você pode pressionar MOUSE1 para fixar esta posição na coluna "Probe" e pressioná-lo novamente para liberar a posição.
 
 Os valores aparecerão em vermelho quando um determinado valor estiver fora do esperado.
 
@@ -44,13 +44,13 @@ Os valores aparecerão em vermelho quando um determinado valor estiver fora do e
 
 ### Selecionando infografias
 
-O usuário pode selecionar quais informações exibir clicando nas caixas de seleção no lado direito da janela. Esta seleção será salva na aba atual, e novas abas podem ser abertas com o botão "Nova Aba". Para alterar a aba mostrada, basta clicar na nova aba desejada; para fechá-la, clique no "x" (pelo menos 1 guia deve estar aberta).
+O usuário pode selecionar quais informações exibir clicando nas caixas de seleção no lado direito da janela. Esta seleção será salva na aba atual, e novas abas podem ser abertas com o botão "New Tab". Para alterar a aba mostrada, basta clicar na nova aba desejada; para fechá-la, clique no "x" (pelo menos 1 aba deve estar aberta).
 
 <img src = "doc/Changing-tabs.gif">
 
 #### Abas Predefinig
 
-Você pode adicionar guias personalizadas alterando o conteúdo do arquivo "tabs.txt predefinido", com as seguintes regras: 
+Você pode adicionar abas personalizadas alterando o conteúdo do arquivo "predefined tabs.txt", com as seguintes regras: 
 
 * Cada linha representa uma guia;
 * As informações de cada guia devem ser divididas por ponto e vírgula (";");
