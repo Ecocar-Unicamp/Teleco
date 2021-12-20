@@ -6,7 +6,7 @@ The Graph plotter allows visualization data collected by Ecocar-Unicamp's teleme
 
 ## Instalation
 
-1. Dowload the latest versions of TelEco.py to your computer and TelEco Arduino.ino to your arduino;
+1. Download the latest versions of TelEco.py to your computer and TelEco Arduino.ino to your arduino;
 2. Add the periferic files to the same folder as the program;
 3. You may use pyinstaller to generate an executable for the program.
 
@@ -29,9 +29,9 @@ When a connection is stablished the button text will change to "connected".
 
 ### Navigating the graph
 
-The following methods allows the user to change the manner in wich the graps are presented:
+The following methods allows the user to change the manner in which the graphs are presented:
 * Zoom in and zoom out: using the mouse wheel
-* Graph displacement:  LEFT and RIGHT arrow keys (unitary displacement) or UP and DOWN arrow keys (quick displacement). You can also use the mouse to click on the bar and change the visulization window more quickly. By pressing "Set Window", the graph will fulfill the window.
+* Graph displacement:  LEFT and RIGHT arrow keys (unitary displacement) or UP and DOWN arrow keys (quick displacement). You can also use the mouse to click on the bar and change the visualization window more quickly. By pressing "Set Window", the graph will fulfill the window.
 * Freeze or de-freeze the graph: by clicking the "Freeze" button. The graph will also freeze should you displace it. 
 * Change the graph's proportion: by pressing the "Local View/ Global View" button.
 
@@ -48,7 +48,7 @@ The user can select what information to display clicking on the checkboxes on th
 
 <img src="doc/Changing-tabs.gif"> <!-- trocar imagem -->
 
-#### Predefinig Tabs
+#### Predefining Tabs
 
 You can add custom tabs by changing the contents of the "predefined tabs.txt" file, with the following rules: <!-- imagem -->
 
@@ -64,5 +64,5 @@ All data will be saved on a .txt file, formated for being displayed on a spreads
 
 ## Code info
 
-The plotter is written in python using the [pygame library](https://www.pygame.org/news) wich makes the graphic interface and user input easy to implement.
+The plotter is written in python using the [pygame library](https://www.pygame.org/news) which makes the graphic interface and user input easy to implement.
 The [pyserial library](https://pyserial.readthedocs.io/en/latest/pyserial.html) is also used for the comunication with the telemetry system.
