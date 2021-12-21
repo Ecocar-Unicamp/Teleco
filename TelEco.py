@@ -10,7 +10,7 @@ import os
 # Authors: Daniel Carvalho Frulane de Souza, Nuno Kuschnaroff Barbosa,
 # Guilherme Magalhães Soares and Igor Oura Belieri
 
-program_version = "BETA"  # 1.0
+program_version = 1.0
 
 '''
 Markers:
@@ -46,6 +46,7 @@ window_of_visualization.fill(color_of_screen)
 list_of_colors_for_lines = [(248, 82, 82), (97, 205, 97), (70, 118, 206), (255, 255, 105),
                             (48, 228, 228), (255, 152, 82), (127, 255, 127), (127, 127, 255)]
 
+# for writing text
 text_font = "Arial"
 font = pygame.font.SysFont(text_font, 16)
 minor_font = pygame.font.SysFont(text_font, 12)
@@ -57,6 +58,7 @@ version_text = font.render("Telemetry Plotter  Version: " + str(program_version)
 version_text_position = (4, y_size_of_window - 20)
 window_of_visualization.blit(version_text, version_text_position)
 
+# box with graphs' informations
 information_box_x = 170
 information_box_y = 480
 
@@ -283,8 +285,8 @@ def connect():
                 if serial_COM_port.in_waiting:
                     input = serial_COM_port.readline().decode('utf-8').strip()
                     print(input)
-                    if (input == "begin"):  # any other case: serial_COM_port = None
-                        list_of_infographs = []
+                    if (input == "begin"):
+                        list_of_infographs = [] # resets everything
                         biggest_step = None
                         smallest_step_infograph = None
                         minimum_frame_size = None
@@ -294,7 +296,7 @@ def connect():
                         timing = time.time()
                         while (1):
                             if time.time() - timing > 3:
-                                serial_COM_port = None
+                                serial_COM_port = None # resets everything when error occurs
                                 list_of_infographs = []
                                 biggest_step = None
                                 smallest_step_infograph = None
@@ -373,7 +375,7 @@ class graph():
         self.size_of_frame = None  # number of points shown of the smallest step's list
         self.list_of_infographs = []  # updated automatically at the beggining of the loop
 
-        self.current_list_of_coordinates = []
+        self.current_list_of_coordinates = [] # what data is shown
         self.current_list_of_values_initial_and_final_positions = []  # (x,y) for showing information
 
         self.probe_points = []
@@ -513,10 +515,11 @@ class graph():
 
                         self.current_list_of_coordinates[i].append((x_coordinate, y_coordinate))
 
+                    # draws all the lines for data visualization
                     pygame.draw.lines(window_of_visualization, self.list_of_infographs[i].color, False,
                                       self.current_list_of_coordinates[i], line_width)
 
-    # -_-_-_-_-_-_-_-_-_-_-# Additional Information
+    # -_-_-_-_-_-_-_-_-_-_-# Cursor Information
     def info(self, cursor_position):  # conditional if cursor_is_over graph
         point_distance = None
         aux = 0
@@ -551,7 +554,7 @@ class graph():
             self.window_of_visualization.blit(time_info, (information_box_x + 345 - (time_info.get_width() / 2), (25 * len(list_of_infographs)) + (information_box_y + 30) - (time_info.get_height() / 2)))
         pygame.draw.line(self.window_of_visualization, graph_info_color, (cursor_position[0], self.y),
                          (cursor_position[0], self.y + self.height), info_line_width)
-        pygame.draw.circle(self.window_of_visualization, info_dot_color, cursor_position, info_dot_radius)
+        pygame.draw.circle(self.window_of_visualization, info_dot_color, cursor_position, info_dot_radius) # specific data point
 
     def probe(self, cursor_position):  # conditional if cursor_is_over graph
         point_distance = None
@@ -602,7 +605,6 @@ main_graph = graph(window_of_visualization, main_graph_x, main_graph_y, main_gra
 # -#-#-#-#-#-#-#-#-#-#-# Bar #-#-#-#-#-#-#-#-#-#-#-#
 color_of_pointer = (0, 255, 0)
 pointer_thickness = 2
-
 
 class bar:
     def __init__(self, window, color, x, y, width, height):
@@ -695,7 +697,7 @@ class last_value_box():
 
 
 # -#-#-#-#-#-#-#-#-#-#-# Tab #-#-#-#-#-#-#-#-#-#-#-#
-tab_main_color = (100, 100, 100)  # mudar
+tab_main_color = (100, 100, 100)
 tab_secondary_color = (60, 60, 60)
 tab_close_color = (248, 82, 82)
 values_table_X = 1105
@@ -715,7 +717,7 @@ class tab:
         self.text = text
         self.color = tab_main_color
 
-        self.close_x = x + width + 10
+        self.close_x = x + width + 10 # associated close button
         self.close_y = y
         self.close_width = height
         self.close_height = height
@@ -762,7 +764,7 @@ class tab:
             (self.window).blit(text, (
                 self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
 
-        if self.selected:
+        if self.selected: # also draws associated checkboxes
             pygame.draw.rect(self.window, (50, 50, 50), (information_box_x, information_box_y, 520, 17 * len(self.checkboxes) + 90), 0)
             info_box_text1 = font.render("Last", True, (200, 200, 200))
             self.window.blit(info_box_text1, (information_box_x + 242, information_box_y+3))
@@ -847,7 +849,7 @@ while running:
                 index].lowest_global_value > value:
                 list_of_infographs[index].lowest_global_value = value
     except (ValueError, serial.SerialException):
-        print("Disconnected")
+        print("Disconnected") # reset everything
         serial_COM_port = None
         connection_button.color = connection_button_color2
         connection_button.text = message_connection_button_4
@@ -921,7 +923,7 @@ while running:
                     connection_button.text = message_connection_button_2
                     main_graph.size_of_frame = 10 * minimum_frame_size
 
-                    try:
+                    try: # analyze the .txt file
                         with open(file_name, "r") as file:
                             for line in file:
                                 split_line = line.split(";")
@@ -940,7 +942,7 @@ while running:
                                                 break
                     except FileNotFoundError:
                         print("No predefined tabs")
-                    if not len(list_of_tabs):
+                    if not len(list_of_tabs): # if no predefined tabs
                         list_of_tabs.append(tab(window_of_visualization, 30, 180, 100, 20, "Tab " + str(tab_number), True))
                         tab_number += 1
                     selected_tab = list_of_tabs[0]
@@ -1070,7 +1072,7 @@ while running:
         freezing_button.text = message_freezing_button_1
         main_graph.initial_smallest_step_position_in_list -= 1
 
-    # -_-_-_-_-_-_-_-_-_-_-# Graph curves bug fixes
+    # -_-_-_-_-_-_-_-_-_-_-# Graph curves position fixes
     # makes sure that when the size of frame is greater than the number of values, the initial position is set to 0
     if (serial_COM_port or dummy_infograph) and (
             live_data or (not live_data and len(smallest_step_infograph.list_of_values) <
