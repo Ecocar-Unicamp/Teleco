@@ -542,9 +542,12 @@ class graph():
                 pygame.draw.circle(self.window_of_visualization, closest_points[incrementor][2], closest_points[incrementor][1],
                                    info_dot_radius)
 
-                info = minor_font.render(
-                scientific_notation(list_of_infographs[index].list_of_values[closest_points[incrementor][0] +
-                                    self.current_list_of_values_initial_and_final_positions[incrementor][0]]), True, (200, 200, 200))
+                info_value = list_of_infographs[index].list_of_values[closest_points[incrementor][0] + self.current_list_of_values_initial_and_final_positions[incrementor][0]]
+
+                if list_of_infographs[index].alert_higher and info_value > list_of_infographs[index].alert_higher or list_of_infographs[index].alert_lower and info_value < list_of_infographs[index].alert_lower:
+                    info = minor_font.render(scientific_notation(info_value), True, (248, 42, 42))
+                else:
+                    info = minor_font.render(scientific_notation(info_value), True, (200, 200, 200))
                 self.window_of_visualization.blit(info, (information_box_x + 345 - (info.get_width() / 2),
                                                          (25 * index) + (information_box_y + 30) - (
                                                                  info.get_height() / 2)))
@@ -579,8 +582,8 @@ class graph():
                             closest_points[incrementor] = (j, self.current_list_of_coordinates[incrementor][j], self.list_of_infographs[incrementor].color)
 
 
-                    self.probe_points.append([scientific_notation(list_of_infographs[index].list_of_values[closest_points[incrementor][0] +
-                                        self.current_list_of_values_initial_and_final_positions[incrementor][0]]),index])
+                    self.probe_points.append([list_of_infographs[index].list_of_values[closest_points[incrementor][0] +
+                                        self.current_list_of_values_initial_and_final_positions[incrementor][0]],index])
                     time = self.initial_smallest_step_position_in_list * smallest_step_infograph.step + (cursor_position[0] - self.x) * (((self.size_of_frame - 1) * smallest_step_infograph.step) / self.width)
                     if time > smallest_step_infograph.step * len(smallest_step_infograph.list_of_values):
                         time = smallest_step_infograph.step * len(smallest_step_infograph.list_of_values)
@@ -591,7 +594,11 @@ class graph():
     def probe_print(self):
         if self.probe_points:
             for i in range(len(self.probe_points)):
-                info = minor_font.render(self.probe_points[i][0], True, (200, 200, 200))
+                if list_of_infographs[self.probe_points[i][1]].alert_higher and self.probe_points[i][0] > list_of_infographs[self.probe_points[i][1]].alert_higher or list_of_infographs[self.probe_points[i][1]].alert_lower and self.probe_points[i][0] < list_of_infographs[self.probe_points[i][1]].alert_lower:
+                    info = minor_font.render(scientific_notation(self.probe_points[i][0]), True, (248, 42, 42))
+                else:
+                    info = minor_font.render(scientific_notation(self.probe_points[i][0]), True, (200, 200, 200))
+
                 self.window_of_visualization.blit(info,  (information_box_x + 435 - (info.get_width() / 2), (25*self.probe_points[i][1]) + (information_box_y + 30) - (info.get_height() / 2)))
             info = self.probe_time
             self.window_of_visualization.blit(self.probe_time, (information_box_x + 435 - (info.get_width() / 2), (25 * len(list_of_infographs)) + (information_box_y + 30) - (info.get_height() / 2)))
